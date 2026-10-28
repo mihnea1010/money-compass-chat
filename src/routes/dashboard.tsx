@@ -86,8 +86,8 @@ function Dashboard() {
           <div>CSV: Data, Descriere, Suma · PDF: ING sau Revolut, citit local</div>
           <input ref={fileRef} type="file" accept=".csv,text/csv,.pdf,application/pdf" className="hidden" disabled={scanning} onChange={(e) => onFile(e.target.files?.[0])} />
         </label>
-        <div className="space-y-2 rounded-2xl border border-warning/40 bg-card/60 p-4 text-left"><div className="text-sm font-medium">Sau conectează banca prin Open Banking</div><ConecteazaBanca disabled={scanning} onConfirm={demo} /></div>
-        <Button variant="outline" className="border-warning/60 text-warning-foreground hover:bg-warning/15 hover:text-warning-foreground" onClick={demo} disabled={scanning}>Folosește extrasul demo</Button>
+        <div className="space-y-2 rounded-2xl border border-await/40 bg-card/60 p-4 text-left"><div className="text-sm font-medium">Sau conectează banca prin Open Banking</div><ConecteazaBanca disabled={scanning} onConfirm={demo} /></div>
+        <Button variant="outline" className="border-await/60 text-await-foreground hover:bg-await/15 hover:text-await-foreground" onClick={demo} disabled={scanning}>Folosește extrasul demo</Button>
         {err && <p className="text-sm text-destructive">{err}</p>}
       </div>
     </div>
