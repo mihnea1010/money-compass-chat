@@ -9,6 +9,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { bestCardForStore, loadCards, saveCards, type MyCard } from "@/lib/my-cards";
 import { useStorePresence } from "@/hooks/use-store-presence";
 import { HIGHLIGHT_KEY } from "@/lib/simulate-store";
+import { CardDetailDialog } from "@/components/CardDetailDialog";
 
 const WALLET: Record<string, string> = { ing: "wallet-ing", "ing-alt": "wallet-ing-alt", bcr: "wallet-bcr", "bcr-alt": "wallet-bcr-alt", bt: "wallet-bt", "bt-alt": "wallet-bt-alt", raiffeisen: "wallet-raiffeisen" };
 const LOC_KEY = "bestsaves.locationOn";
@@ -53,6 +54,7 @@ function useCardPopup() {
 }
 
 export function MyCards() {
+  const [detail, setDetail] = useState<MyCard | null>(null);
   const [cards, setCards] = useState<MyCard[]>([]);
   const [locOn, setLocOn] = useState(false);
   const popup = useCardPopup();
@@ -97,7 +99,9 @@ export function MyCards() {
               const glow = glowId === c.id;
               return (
                 <CarouselItem key={c.id} className="basis-auto">
-                  <div tabIndex={0}
+                  <div tabIndex={0} role="button" aria-label={`Detalii ${c.bank} ${c.name}`}
+                    onClick={() => { popup.setActiveId(null); setDetail(c); }}
+                    onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); popup.setActiveId(null); setDetail(c); } }}
                     ref={(el) => { popup.refs.current[c.id] = el; }}
                     onMouseEnter={() => popup.setActiveId(c.id)}
                     onMouseLeave={() => popup.setActiveId((id) => (id === c.id ? null : id))}
@@ -107,7 +111,7 @@ export function MyCards() {
                     <div className="flex items-start justify-between gap-2">
                       <div className="truncate text-base font-semibold">{c.bank}</div>
                       {hi ? <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">Cel mai bun aici</span>
-                        : <button type="button" aria-label={`Șterge ${c.bank} ${c.name}`} onClick={() => update(cards.filter((x) => x.id !== c.id))} className="opacity-0 transition-opacity group-hover:opacity-80 hover:opacity-100"><Trash2 className="size-3.5" /></button>}
+                        : <Button variant="ghost" size="icon-sm" aria-label={`Șterge ${c.bank} ${c.name}`} onClick={(e) => { e.stopPropagation(); update(cards.filter((x) => x.id !== c.id)); }} className="opacity-0 transition-opacity group-hover:opacity-80 focus:opacity-100"><Trash2 className="size-3.5" /></Button>}
                     </div>
                     <div className="h-6 w-9 rounded-md bg-wallet-foreground/30" />
                     <div className="flex items-end justify-between text-xs">
@@ -123,7 +127,8 @@ export function MyCards() {
           <CarouselNext className="right-0" />
         </Carousel>
       )}
-      {active && popup.box && typeof document !== "undefined" && createPortal(
+      {detail && <CardDetailDialog key={detail.id} card={detail} onClose={() => { setDetail(null); popup.setActiveId(null); }} />}
+      {!detail && active && popup.box && typeof document !== "undefined" && createPortal(
         <div role="tooltip"
           className={`pointer-events-none fixed z-[70] w-56 rounded-xl border bg-popover p-3 text-popover-foreground shadow-xl ${popup.box.below ? "" : "-translate-y-full"}`}
           style={{ top: popup.box.top, left: popup.box.left }}>
