@@ -103,7 +103,7 @@ export function MyCards() {
                     onMouseLeave={() => popup.setActiveId((id) => (id === c.id ? null : id))}
                     onFocus={() => popup.setActiveId(c.id)}
                     onBlur={() => popup.setActiveId((id) => (id === c.id ? null : id))}
-                    className={`${WALLET[c.style ?? ""] ?? "wallet-default"} group relative flex h-36 w-60 flex-col justify-between rounded-2xl p-4 text-wallet-foreground shadow-soft outline-none transition-transform hover:-translate-y-1 focus:ring-2 focus:ring-primary/40 ${hi ? "scale-[1.04] ring-4 ring-primary" : ""} ${glow ? "card-glow" : ""}`}>
+                    className={`${WALLET[c.style ?? ""] ?? "wallet-default"} group relative flex h-36 w-60 flex-col justify-between rounded-2xl p-4 text-wallet-foreground ${glow ? "" : "shadow-soft"} outline-none transition-transform hover:-translate-y-1 focus:ring-2 focus:ring-primary/40 ${hi ? "scale-[1.04] ring-4 ring-primary" : ""} ${glow ? "card-glow" : ""}`}>
                     <div className="flex items-start justify-between gap-2">
                       <div className="truncate text-base font-semibold">{c.bank}</div>
                       {hi ? <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">Cel mai bun aici</span>
