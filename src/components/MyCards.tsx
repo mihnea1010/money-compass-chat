@@ -80,7 +80,7 @@ export function MyCards() {
               return (
                 <CarouselItem key={c.id} className="basis-auto">
                   <div tabIndex={0}
-                    ref={(el) => { refs.current[c.id] = el; }}
+                    ref={(el) => { popup.refs.current[c.id] = el; }}
                     onMouseEnter={() => popup.setActiveId(c.id)}
                     onMouseLeave={() => popup.setActiveId((id) => (id === c.id ? null : id))}
                     onFocus={() => popup.setActiveId(c.id)}
