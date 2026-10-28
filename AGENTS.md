@@ -19,3 +19,6 @@
 
 - Phone app ships via Capacitor (capacitor.config.ts loads the hosted web app); store detection runs in browser-safe lib/store-presence.ts with OpenStreetMap lookup, and user cards stay browser-local.
 - Card savings popovers render through a body-level portal placed from the card's viewport rect (flipping below when near the top), never as in-flow carousel content — the carousel viewport clips in-flow overlays, and reserving space for them pushed the card row down, which the user rejected.
+- Auth is subscribed once by the root AuthProvider, validates users and discards stale profile reads; profile UI derives signed-out/name-only/complete states from that shared context.
+- Account deletion targets only the validated caller in an authenticated server function; privileged clients load only inside the handler.
+- CardDetailDialog mounts per selected card and keeps demo unlock input ephemeral; fictitious test details never originate from stored real card data.
