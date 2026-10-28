@@ -16,3 +16,4 @@
 - [x] Verify selection and explanation end-to-end.
 - [x] Add /acasa home with Tinder-style open-source swap cards, social proof, dual CTAs; rename Extra savings to Reduce costs; logo links home.
 - [x] Simplify Acasă, redirect local profiles to savings, move swaps to Reduce costs and verify both flows.
+- [x] Tint the vault's no-statement state yellow (await tokens + await-panel utility) and verify it on dark, light and phone widths.
