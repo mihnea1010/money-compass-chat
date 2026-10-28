@@ -22,4 +22,4 @@
 - Auth is subscribed once by the root AuthProvider, validates users and discards stale profile reads; profile UI derives signed-out/name-only/complete states from that shared context.
 - Account deletion targets only the validated caller in an authenticated server function; privileged clients load only inside the handler.
 - CardDetailDialog mounts per selected card and keeps demo unlock input ephemeral; fictitious test details never originate from stored real card data.
-- AddCardDialog validates ephemeral inputs with React Hook Form and a shared Zod/card-validator schema; only last four digits, network and wallet metadata are persisted, never full numbers, CVV, holder or expiry, to avoid storing payment credentials.
+- AddCardDialog collects only the 6-digit BIN and the last 4 digits (no CVV field, no PAN, so no Luhn check is possible), validated with React Hook Form and a shared Zod/card-validator schema; only last four digits, network and wallet metadata are persisted, never full numbers, CVV, holder or expiry, to avoid storing payment credentials.
