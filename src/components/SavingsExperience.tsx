@@ -1,7 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { hydrateStore, useStore } from "@/store/useStore";
-import { offerMatchesCards } from "@/lib/card-input";
+import { useMemo, useState } from "react";
 import { ArrowRight, ArrowUpRight, Check, ChevronLeft, Clock3, CreditCard, ShieldCheck, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -26,8 +24,6 @@ export function SavingsExperience() {
   const [filter, setFilter] = useState("all");
   const [confirm, setConfirm] = useState<SavingsOffer | null>(null);
   const [amount, setAmount] = useState("");
-  const userCards = useStore((s) => s.userCards);
-  useEffect(hydrateStore, []);
   const pick = useServerFn(pickOffers);
   const ai = useQuery({
     queryKey: ["ai-pick", example, baseOffers.map((o) => `${o.id}:${o.annualRon}`).join(",")],
@@ -36,7 +32,7 @@ export function SavingsExperience() {
     queryFn: () => pick({ data: { spend: spendByCategory(transactions), offers: baseOffers.map(({ id, title, annualRon, minutes, provider }) => ({ id, title, annualRon, minutes, provider })) } }),
   });
   const year = Number(new Intl.DateTimeFormat("en", { timeZone: "Europe/Bucharest", year: "numeric" }).format(today));
-  const offers = useMemo(() => { const ordered = ai.data ? applyAiOrder(baseOffers, ai.data.order, ai.data.reasons) : baseOffers; return example ? ordered : ordered.filter((o) => offerMatchesCards(o, userCards)); }, [baseOffers, ai.data, example, userCards]);
+  const offers = useMemo(() => ai.data ? applyAiOrder(baseOffers, ai.data.order, ai.data.reasons) : baseOffers, [baseOffers, ai.data]);
   const total = offers.reduce((s, o) => s + o.annualRon, 0);
   const remaining = offers.filter((o) => !skipped.includes(o.id));
   const current = remaining[0];

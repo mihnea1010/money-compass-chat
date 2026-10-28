@@ -5,7 +5,7 @@ import { EMPTY_SETTINGS, type OptimizationSettings, type OptimizationRecord } fr
 export type SavingsOffer = {
   id: string; title: string; provider: string; category: "card" | "tax";
   annualRon: number; minutes: number; description: string; conditions: string;
-  steps: string[]; url: string; action: string; calculable: boolean; reason?: string | undefined; bank?: string;
+  steps: string[]; url: string; action: string; calculable: boolean; reason?: string | undefined;
 };
 /** Row shape of the bank_offers table (offers curated from official bank pages). */
 export type BankOffer = {
@@ -41,7 +41,7 @@ export function buildSavingsOffers(transactions: Tranzactie[], settings: Optimiz
   const day = bucharestDay(today);
   const offers: SavingsOffer[] = bankOffers.filter((o) => (!o.valid_until || o.valid_until >= day) && (!o.valid_from || o.valid_from <= day)).map((o) => {
     const est = estimateBankOffer(o, transactions, settings);
-    return { id: o.id, bank: o.bank, title: o.title, provider: `${o.bank} · ${o.product}`, category: "card", annualRon: est.annualRon, minutes: o.effort_minutes, calculable: est.calculable,
+    return { id: o.id, title: o.title, provider: `${o.bank} · ${o.product}`, category: "card", annualRon: est.annualRon, minutes: o.effort_minutes, calculable: est.calculable,
       description: o.summary, steps: o.steps, url: o.source_url, action: `Deschide oferta ${o.bank.split(" (")[0]}`,
       conditions: `${o.conditions} ${est.calculable ? "Estimare pe 12 luni din ritmul cheltuielilor tale." : o.is_credit ? "Pentru calcul: confirmă rambursarea integrală și costul anual în Date & eligibilitate." : ""} Verificat pe sursa oficială la ${o.verified_on}${o.valid_until ? `, valabil până la ${o.valid_until}` : ""}.`.trim() };
   });

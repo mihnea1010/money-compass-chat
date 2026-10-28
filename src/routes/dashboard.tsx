@@ -11,11 +11,7 @@ import { SoldConturi } from "@/components/SoldConturi";
 import { ConecteazaBanca } from "@/components/ConecteazaBanca";
 import { parseStatementText, pdfToText, toCSV } from "@/lib/pdfStatement";
 import { MyCards } from "@/components/MyCards";
-import { RoiWidget } from "@/components/RoiWidget";
-import { CardLoopVisualizer } from "@/components/CardLoopVisualizer";
-import { ProactiveOptimizations } from "@/components/ProactiveOptimizations";
-import { cardAlerts } from "@/lib/card-loops";
-import { EMPTY_SETTINGS, loadOptimizationState, type OptimizationState } from "@/lib/optimization-state";
+import { EMPTY_SETTINGS, loadOptimizationState, saveOptimizationState, type OptimizationState } from "@/lib/optimization-state";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -120,10 +116,6 @@ function Dashboard() {
             <ShieldCheck className="size-4" /> Stocat doar în browser
           </div>
         </header>
-
-        <RoiWidget />
-        <CardLoopVisualizer settings={optimization.settings} alerts={cardAlerts(optimization.settings, new Date())} />
-        <ProactiveOptimizations tranz={tranz} onSettingsChange={(settings) => setOptimization((o) => ({ ...o, settings }))} />
 
         <div className="grid gap-4 md:grid-cols-3">
           <SoldConturi tranz={tranz} deschis={solduri} onToggle={setSolduri} />
