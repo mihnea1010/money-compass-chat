@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { OptimizationSettings } from "./OptimizationSettings";
-import { CardLoopVisualizer } from "./CardLoopVisualizer";
+import { useStore } from "@/store/useStore";
 import { buildOptimizations, payrollRequest, type OptimizationTrigger } from "@/lib/optimizations";
 import { cardAlerts } from "@/lib/card-loops";
 import { EMPTY_SETTINGS, loadOptimizationState, saveOptimizationState, recordOptimization, realizedTotal, type OptimizationState } from "@/lib/optimization-state";
@@ -15,7 +15,9 @@ import { formatRON, cn } from "@/lib/utils";
 
 const CATEGORY = { tax_bonification: "Beneficiu fiscal", salary_deduction: "Salarizare", fee_reduction: "Comisioane", fx_optimization: "Schimb valutar", cashback_arbitrage: "Recompense" };
 
-export function ProactiveOptimizations({ tranz }: { tranz: Tranzactie[] }) {
+export function ProactiveOptimizations({ tranz, onSettingsChange }: { tranz: Tranzactie[]; onSettingsChange?: (s: OptimizationState["settings"]) => void }) {
+  const activated = useStore((s) => s.activeOptimizations);
+  const activate = useStore((s) => s.activateOptimization);
   const [state, setState] = useState<OptimizationState>({ settings: EMPTY_SETTINGS, records: [] });
   const [today, setToday] = useState(new Date());
   const [confirm, setConfirm] = useState<OptimizationTrigger | null>(null);
@@ -34,7 +36,7 @@ export function ProactiveOptimizations({ tranz }: { tranz: Tranzactie[] }) {
   const realized = realizedTotal(state.records, year);
   const alerts = cardAlerts(state.settings, today);
   const update = (next: OptimizationState) => {
-    try { saveOptimizationState(next); setState(next); } catch { toast.error("Nu am putut salva în browser. Verifică spațiul disponibil."); }
+    try { saveOptimizationState(next); setState(next); onSettingsChange?.(next.settings); } catch { toast.error("Nu am putut salva în browser. Verifică spațiul disponibil."); }
   };
   const dismiss = (t: OptimizationTrigger) => update({ ...state, records: recordOptimization(state.records, { id: t.id, year, status: "dismissed", realizedRon: 0 }) });
   const run = (t: OptimizationTrigger) => {
@@ -64,7 +66,8 @@ export function ProactiveOptimizations({ tranz }: { tranz: Tranzactie[] }) {
         <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs font-medium text-muted-foreground">{CATEGORY[t.category]}</span><span className={cn("text-xs", t.urgencyLevel === "medium" ? "text-warning-foreground" : "text-muted-foreground")}>{t.urgencyLabel}</span></div>
         <h3 className="text-base font-semibold">{t.title}</h3><p className="text-sm text-muted-foreground">{t.contextExplanation}</p>
         <div className="mt-auto"><div className="mb-3 font-display text-2xl font-semibold text-success-foreground">{t.impactAmountRon > 0 ? `Până la ${formatRON(t.impactAmountRon)}` : t.impactKind === "donation" ? "Nu este economie personală" : "Impact de calculat"}</div>
-          <Button onClick={() => run(t)} className="h-auto min-h-9 w-full whitespace-normal py-2 text-left">{t.primaryAction.actionType === "generate_pdf" ? <Download /> : t.primaryAction.actionType === "one_click_toggle" ? <Eye /> : <ArrowUpRight />}{t.primaryAction.actionType === "generate_pdf" ? "Descarcă cerere (.txt)" : t.primaryAction.label}</Button>
+          {activated.some((a) => a.id === t.id) ? <div className="mb-2 flex items-center justify-center gap-1 rounded-md bg-success-soft py-2 text-sm font-medium text-success-foreground"><Check className="size-4" />Activat</div> : <Button variant="savings" disabled={t.impactAmountRon <= 0} onClick={() => { activate(t.id, t.impactAmountRon); toast.success("Optimizare activată · randamentul a crescut."); }} className="mb-2 w-full"><Sparkles />Activează</Button>}
+          <Button variant="outline" onClick={() => run(t)} className="h-auto min-h-9 w-full whitespace-normal py-2 text-left">{t.primaryAction.actionType === "generate_pdf" ? <Download /> : t.primaryAction.actionType === "one_click_toggle" ? <Eye /> : <ArrowUpRight />}{t.primaryAction.actionType === "generate_pdf" ? "Descarcă cerere (.txt)" : t.primaryAction.label}</Button>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-1"><Button size="sm" variant="ghost" onClick={() => { setConfirm(t); setAmount(""); }}><Check />Confirmă rezultatul</Button><Button size="icon-sm" variant="ghost" title="Ignoră" aria-label={`Ignoră: ${t.title}`} onClick={() => dismiss(t)}><X /></Button><Button asChild variant="link" size="sm" className="h-auto p-0"><a href={t.sourceUrl} target="_blank" rel="noopener noreferrer">Sursă oficială</a></Button></div>
         </div>
       </article>)}
@@ -72,7 +75,6 @@ export function ProactiveOptimizations({ tranz }: { tranz: Tranzactie[] }) {
     {active.length === 0 && <p className="py-2 text-sm text-muted-foreground">Toate oportunitățile disponibile au fost analizate.</p>}
     {state.records.some((r) => r.year === year) && <Button size="sm" variant="ghost" className="h-auto max-w-full whitespace-normal py-2 text-left" onClick={() => update({ ...state, records: state.records.filter((r) => r.year !== year) })}><RotateCcw />Reafișează oportunitățile și resetează confirmările din {year}</Button>}
     <details className="border-t pt-4"><summary className="cursor-pointer text-sm font-medium">Calendar fiscal · {closed.length} termene încheiate</summary><div className="mt-3 grid gap-3 md:grid-cols-2">{closed.map((t) => <article key={t.id} className="rounded-lg border bg-muted/30 p-4"><div className="text-xs text-muted-foreground">{t.urgencyLabel}</div><h3 className="mt-1 text-sm font-semibold">{t.title}</h3><p className="mt-2 text-xs text-muted-foreground">{t.contextExplanation}</p><Button variant="link" size="sm" className="mt-2 h-auto p-0" onClick={() => run(t)}>Informații oficiale <ArrowUpRight /></Button></article>)}</div><p className="mt-3 text-xs text-muted-foreground">Nu prelungim automat campaniile pentru 2027. Procentul local și următorul termen trebuie reconfirmate.</p></details>
-    <CardLoopVisualizer settings={state.settings} alerts={alerts} />
     <Dialog open={!!confirm} onOpenChange={(v) => { if (!v) setConfirm(null); }}><DialogContent className="w-[calc(100%-2rem)]"><DialogHeader><DialogTitle>Confirmă rezultatul, nu estimarea</DialogTitle><DialogDescription>{confirm?.title}. Introdu suma netă efectiv economisită, după costuri și dobânzi. Confirmarea este declarația ta, nu verificarea băncii.</DialogDescription></DialogHeader><form className="space-y-4" onSubmit={(e) => {
       e.preventDefault(); const n = Number(amount);
       if (!confirm || amount.trim() === "" || !Number.isFinite(n) || n < 0 || n > 1000000) { toast.error("Introdu o sumă validă între 0 și 1.000.000 RON."); return; }
