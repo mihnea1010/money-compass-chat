@@ -43,7 +43,7 @@ function Acasa() {
               <Link to="/"><Sparkles />Salvează bani<ArrowRight /></Link>
             </Button>
             <Button variant="outline" size="lg" className="h-14 flex-1 gap-3 border-savings bg-background text-base text-savings hover:bg-savings/10 hover:text-savings" asChild>
-              <Link to="/extra"><PiggyBank />Reduce costurile</Link>
+              <Link to="/extra"><PiggyBank />Abonamentele tale</Link>
             </Button>
           </div>
           <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground"><ShieldCheck className="size-4 text-savings" />Datele tale rămân în browser. Fără cont.</p>
