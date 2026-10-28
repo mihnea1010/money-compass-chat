@@ -19,6 +19,7 @@
  */
 
 @theme inline {
+  --color-wallet-foreground: oklch(0.99 0 0);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -167,4 +168,32 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+}
+
+@utility wallet-ing {
+  background: linear-gradient(135deg, oklch(0.7 0.19 50), oklch(0.58 0.2 35));
+}
+
+@utility wallet-ing-alt {
+  background: linear-gradient(135deg, oklch(0.32 0.03 50), oklch(0.2 0.02 40));
+}
+
+@utility wallet-bcr {
+  background: linear-gradient(135deg, oklch(0.5 0.17 255), oklch(0.36 0.15 260));
+}
+
+@utility wallet-bcr-alt {
+  background: linear-gradient(135deg, oklch(0.65 0.12 230), oklch(0.48 0.14 245));
+}
+
+@utility wallet-bt {
+  background: linear-gradient(135deg, oklch(0.48 0.2 300), oklch(0.33 0.16 290));
+}
+
+@utility wallet-bt-alt {
+  background: linear-gradient(135deg, oklch(0.62 0.13 175), oklch(0.45 0.11 190));
+}
+
+@utility wallet-default {
+  background: linear-gradient(135deg, oklch(0.45 0.05 260), oklch(0.3 0.03 260));
 }
