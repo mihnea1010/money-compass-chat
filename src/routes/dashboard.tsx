@@ -79,11 +79,11 @@ function Dashboard() {
       <div className="mx-auto max-w-2xl space-y-6 px-4 py-16 text-center md:px-8">
         <h1 className="font-display text-2xl font-semibold tracking-tight text-await-foreground md:text-3xl">Seif financiar</h1>
         <p className="text-sm text-muted-foreground">Încarcă un extras bancar CSV. Îl citim în browser, iar un AI mic clasifică doar descrierile și sumele.</p>
-        <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-await/70 bg-await-soft p-10 text-sm text-muted-foreground transition-colors hover:border-await hover:bg-await/25"
+        <label className="await-panel flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-await-ink/25 p-10 text-sm transition-transform hover:-translate-y-0.5"
           onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); onFile(e.dataTransfer.files[0]); }}>
-          {scanning ? <Loader2 className="size-6 animate-spin text-warning-foreground" /> : <FileUp className="size-6 text-warning-foreground" />}
-          <div className="font-medium text-warning-foreground">{scanning ? "Scanez tranzacțiile…" : "Încarcă extras bancar (CSV sau PDF)"}</div>
-          <div>CSV: Data, Descriere, Suma · PDF: ING sau Revolut, citit local</div>
+          {scanning ? <Loader2 className="size-6 animate-spin" /> : <FileUp className="size-6" />}
+          <div className="font-semibold">{scanning ? "Scanez tranzacțiile…" : "Încarcă extras bancar (CSV sau PDF)"}</div>
+          <div className="text-await-ink/75">CSV: Data, Descriere, Suma · PDF: ING sau Revolut, citit local</div>
           <input ref={fileRef} type="file" accept=".csv,text/csv,.pdf,application/pdf" className="hidden" disabled={scanning} onChange={(e) => onFile(e.target.files?.[0])} />
         </label>
         <div className="space-y-2 rounded-2xl border border-await/40 bg-card/60 p-4 text-left"><div className="text-sm font-medium">Sau conectează banca prin Open Banking</div><ConecteazaBanca disabled={scanning} onConfirm={demo} /></div>
