@@ -23,6 +23,7 @@ export function cardInputSchema(now = new Date()) {
     holder: z.string().trim().min(2, "Introdu numele titularului.").max(100).regex(/^[\p{L} ]+$/u, "Folosește numai litere și spații."),
     expiry: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, "Folosește MM/YY, cu o lună între 01 și 12.").refine((value) => {
       const [month, year] = value.split("/").map(Number);
+      if (month === undefined || year === undefined) return false;
       return new Date(2000 + year, month, 1).getTime() > now.getTime();
     }, "Cardul trebuie să aibă o dată de expirare în viitor."),
     cvv: z.string().regex(/^\d{3,4}$/, "Introdu 3 cifre, sau 4 pentru Amex."),
@@ -42,5 +43,5 @@ export function cardMetadata(input: CardInput, id: string): MyCard {
   const bank = data.bank;
   const normalized = bank.toLowerCase();
   const style = normalized.includes("transilvania") || normalized === "bt" ? "bt" : normalized.includes("raiffeisen") ? "raiffeisen" : normalized.includes("ing") ? "ing" : normalized.includes("bcr") ? "bcr" : undefined;
-  return { id, bank, name: `Card ${network ?? ""}`.trim(), network, style, last4: digitsOnly(data.number).slice(-4), perks: data.merchants.split(",").map((m) => m.trim()).filter(Boolean).map((merchant) => ({ merchant, percent: data.percent })) };
+  return { id, bank, name: `Card ${network ?? ""}`.trim(), ...(network ? { network } : {}), ...(style ? { style } : {}), last4: digitsOnly(data.number).slice(-4), perks: data.merchants.split(",").map((m) => m.trim()).filter(Boolean).map((merchant) => ({ merchant, percent: data.percent })) };
 }
