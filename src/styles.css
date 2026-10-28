@@ -204,11 +204,9 @@
 }
 
 @utility card-glow {
-  outline: 4px solid oklch(0.8 0.22 150);
-  outline-offset: 0;
-  box-shadow: 0 0 24px 6px color-mix(in oklch, oklch(0.8 0.22 150) 70%, transparent);
+  box-shadow: 0 0 0 4px oklch(0.8 0.22 150), 0 0 18px 4px oklch(0.8 0.22 150 / 0.7);
   animation: card-glow-pulse 1.6s ease-in-out infinite;
 }
 @keyframes card-glow-pulse {
-  50% { box-shadow: 0 0 36px 12px color-mix(in oklch, oklch(0.8 0.22 150) 90%, transparent); }
+  50% { box-shadow: 0 0 0 4px oklch(0.85 0.22 150), 0 0 26px 8px oklch(0.8 0.22 150 / 0.9); }
 }

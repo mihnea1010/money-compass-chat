@@ -91,7 +91,7 @@ export function MyCards() {
       </div>
       {cards.length === 0 ? <p className="text-sm text-muted-foreground">Adaugă primul tău card.</p> : (
         <Carousel opts={{ align: "start", dragFree: true }} className="px-10" setApi={(a) => { popup.attachApi(a); setApi(a); }}>
-          <CarouselContent className="py-6 pl-2">
+          <CarouselContent className="py-6 pl-6">
             {shown.map((c) => {
               const hi = best?.card.id === c.id;
               const glow = glowId === c.id;
