@@ -28,8 +28,10 @@ describe("useStore", () => {
   it("migrates legacy cards exactly once through bootstrapCards", () => {
     localStorage.setItem("bestsaves.myCards.v3", JSON.stringify([card("legacy")]));
     bootstrapCards();
-    expect(useStore.getState().userCards.map((c) => c.id)).toEqual(["legacy"]);
-    useStore.getState().removeCard("legacy");
+    const ids = useStore.getState().userCards.map((c) => c.id);
+    expect(ids).toContain("legacy");
+    expect(ids).toContain("raiffeisen-cashback"); // loadCards adaugă presetul Raiffeisen
+    useStore.setState({ userCards: [] });
     bootstrapCards();
     expect(useStore.getState().userCards).toEqual([]);
   });
