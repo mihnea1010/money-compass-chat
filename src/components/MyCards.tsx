@@ -88,7 +88,7 @@ export function MyCards() {
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
             <Switch checked={locOn} onCheckedChange={(v) => { setLocOn(v); localStorage.setItem(LOC_KEY, v ? "1" : "0"); }} /> Recunoaște magazinul
           </label>
-          <AddCardDialog onAdd={(c) => update([...cards, c])} />
+          <AddCardDialog />
         </div>
       </div>
       {cards.length === 0 ? <p className="text-sm text-muted-foreground">Adaugă primul tău card.</p> : (
@@ -111,7 +111,7 @@ export function MyCards() {
                     <div className="flex items-start justify-between gap-2">
                       <div className="truncate text-base font-semibold">{c.bank}</div>
                       {hi ? <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">Cel mai bun aici</span>
-                        : <Button variant="ghost" size="icon-sm" aria-label={`Șterge ${c.bank} ${c.name}`} onClick={(e) => { e.stopPropagation(); update(cards.filter((x) => x.id !== c.id)); }} className="opacity-0 transition-opacity group-hover:opacity-80 focus:opacity-100"><Trash2 className="size-3.5" /></Button>}
+                        : <Button variant="ghost" size="icon-sm" aria-label={`Șterge ${c.bank} ${c.name}`} onClick={(e) => { e.stopPropagation(); removeCard(c.id); }} className="opacity-0 transition-opacity group-hover:opacity-80 focus:opacity-100"><Trash2 className="size-3.5" /></Button>}
                     </div>
                     <div className="h-6 w-9 rounded-md bg-wallet-foreground/30" />
                     <div className="flex items-end justify-between text-xs">
