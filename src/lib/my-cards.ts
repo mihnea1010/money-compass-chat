@@ -2,7 +2,7 @@
 export type CardPerk = { merchant: string; percent: number };
 export type MyCard = { id: string; bank: string; name: string; perks: CardPerk[]; style?: string; last4?: string };
 
-const KEY = "bestsaves.myCards.v2";
+const KEY = "bestsaves.myCards.v3";
 
 /** Card preconfigurat la cererea utilizatorului: Raiffeisen 5% cashback la Carrefour și Auchan. */
 export const RAIFFEISEN_PRESET: MyCard = {
@@ -17,13 +17,13 @@ export const RAIFFEISEN_PRESET: MyCard = {
 
 /** Cardurile băncilor din Seif (ING, BCR, Banca Transilvania). Ofertele de cashback le adaugi tu. */
 export const DEFAULT_CARDS: MyCard[] = [
-  { id: "ing-debit", bank: "ING", name: "Card de debit", perks: [], style: "ing", last4: "4821" },
-  { id: "ing-credit", bank: "ING", name: "Card de credit", perks: [], style: "ing-alt", last4: "7310" },
-  { id: "bcr-debit", bank: "BCR", name: "Card de debit", perks: [], style: "bcr", last4: "1934" },
-  { id: "bcr-credit", bank: "BCR", name: "Card de credit", perks: [], style: "bcr-alt", last4: "6602" },
-  { id: "bt-debit", bank: "Banca Transilvania", name: "Card de debit", perks: [], style: "bt", last4: "2257" },
+  { id: "bt-debit", bank: "Banca Transilvania", name: "Card de debit", perks: [{ merchant: "Carrefour", percent: 5 }, { merchant: "Cumpărături online marți (Mastercard)", percent: 10 }, { merchant: "Parteneri Star", percent: 2 }], style: "bt", last4: "2257" },
+  { id: "bt-credit", bank: "Banca Transilvania", name: "Card de credit Star", perks: [{ merchant: "Parteneri Star (puncte)", percent: 10 }, { merchant: "Agenții de turism Star", percent: 2 }, { merchant: "Direct Booking", percent: 1 }], style: "bt-alt", last4: "9148" },
+  { id: "ing-debit", bank: "ING", name: "Card de debit", perks: [{ merchant: "Amazon.de fashion (ING Bazar)", percent: 8 }, { merchant: "Amazon.de beauty & casă", percent: 5 }, { merchant: "Amazon.de electronice", percent: 3 }], style: "ing", last4: "4821" },
+  { id: "ing-credit", bank: "ING", name: "Card de credit", perks: [{ merchant: "Amazon.de cărți & sport", percent: 4 }, { merchant: "Farmacii ING Bazar", percent: 3 }, { merchant: "Supermarketuri ING Bazar", percent: 2 }], style: "ing-alt", last4: "7310" },
+  { id: "bcr-debit", bank: "BCR", name: "Card de debit", perks: [{ merchant: "Click to Pay marți (Mastercard)", percent: 10 }, { merchant: "OMV", percent: 3 }, { merchant: "Petrom", percent: 3 }], style: "bcr", last4: "1934" },
+  { id: "bcr-credit", bank: "BCR", name: "Card de credit", perks: [{ merchant: "Moneyback George", percent: 3 }, { merchant: "Restaurante parteneri", percent: 2 }], style: "bcr-alt", last4: "6602" },
   { id: "raiffeisen-cashback", bank: "Raiffeisen", name: "Card cashback", perks: [{ merchant: "Carrefour", percent: 5 }, { merchant: "Auchan", percent: 5 }], style: "raiffeisen", last4: "5083" },
-  { id: "bt-credit", bank: "Banca Transilvania", name: "Card de credit", perks: [], style: "bt-alt", last4: "9148" },
 ];
 
 export function loadCards(): MyCard[] {
