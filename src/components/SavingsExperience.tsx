@@ -13,7 +13,7 @@ import { recordOptimization, realizedTotal, saveOptimizationState, type Optimiza
 import { useSavings } from "@/hooks/use-savings";
 import { pickOffers } from "@/lib/ai-picker.functions";
 import { useProfile } from "@/lib/profile";
-import savingsCards from "@/assets/savings-cards.jpg";
+import { SavingsGraphic } from "@/components/SavingsGraphic";
 
 const lei = (value: number) => value.toLocaleString("ro-RO", { maximumFractionDigits: 0 });
 export function SavingsExperience() {
@@ -57,7 +57,7 @@ export function SavingsExperience() {
             <Button variant="savings" size="lg" className="mt-6 h-14 w-full max-w-sm gap-4 text-base" onClick={() => { setStarted(true); setSkipped([]); }}>Salvează bani <ArrowRight /></Button>
             <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground"><span>Fără cont</span><span>Fără plăți automate</span><span>Doar surse oficiale</span></div>
           </div>
-          <img src={savingsCards} alt="Două carduri și un semn verde de economisire" width={1024} height={1024} className="absolute right-0 top-9 hidden size-48 object-contain opacity-90 xl:block" />
+          <SavingsGraphic className="absolute right-0 top-9 hidden size-48 xl:block" />
           {example ? <details className="mt-6 max-w-xl text-xs text-muted-foreground"><summary className="cursor-pointer">Cum ajunge exemplul la {lei(total)} lei?</summary><p className="mt-2 leading-relaxed">Un profil care cheltuie lunar 2.000 lei la Carrefour, 800 lei pe eMAG, 400 lei pe Amazon și 1.667 lei în alte magazine, plătind cu cardul potrivit pentru fiecare: BT Direct Carrefour, Salt (5% online), cardul eMAG, ING Bazar și Marțea Mastercard. Presupune cost anual zero și rambursare integrală. Aceste valori sunt ilustrative, nu prețuri sau tarife actuale. Nu sunt datele tale.</p><Button variant="link" size="sm" className="mt-2 h-auto p-0" asChild><Link to="/dashboard">Încarcă extrasul pentru cifra ta <ArrowRight /></Link></Button></details> : <p className="mt-5 text-xs text-muted-foreground">Estimare pe 12 luni, nu economie garantată. Costurile declarate sunt scăzute din cashback; eligibilitatea se verifică la furnizor.</p>}
         </section>
         <section className="py-7">
