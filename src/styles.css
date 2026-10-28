@@ -210,3 +210,10 @@
 @keyframes card-glow-pulse {
   50% { box-shadow: 0 0 0 4px oklch(0.85 0.22 150), 0 0 26px 8px oklch(0.8 0.22 150 / 0.9); }
 }
+
+.card-preview-scene { perspective: 1000px; aspect-ratio: 1.586; }
+.card-preview-turn { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 550ms ease; }
+.card-preview-turn.is-flipped { transform: rotateY(180deg); }
+.card-preview-face { position: absolute; inset: 0; border-radius: 8px; backface-visibility: hidden; overflow: hidden; }
+.card-preview-back { transform: rotateY(180deg); }
+@media (prefers-reduced-motion: reduce) { .card-preview-turn { transition: none; } }

@@ -1,6 +1,6 @@
 /** Cardurile utilizatorului, stocate doar în browser. */
 export type CardPerk = { merchant: string; percent: number };
-export type MyCard = { id: string; bank: string; name: string; perks: CardPerk[]; style?: string; last4?: string; network?: "Visa" | "Mastercard" };
+export type MyCard = { id: string; bank: string; name: string; perks: CardPerk[]; style?: string; last4?: string; network?: "Visa" | "Mastercard" | "Amex" };
 
 const KEY = "bestsaves.myCards.v3";
 
