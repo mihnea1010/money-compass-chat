@@ -217,3 +217,20 @@
 .card-preview-face { position: absolute; inset: 0; border-radius: 8px; backface-visibility: hidden; overflow: hidden; }
 .card-preview-back { transform: rotateY(180deg); }
 @media (prefers-reduced-motion: reduce) { .card-preview-turn { transition: none; } }
+
+/* Hero fintech field */
+@keyframes fx-float { 0%,100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+@keyframes fx-spin { to { rotate: 360deg; } }
+@keyframes fx-glow { 0%,100% { opacity: .45; scale: 1; } 50% { opacity: .8; scale: 1.12; } }
+@keyframes fx-shine { from { transform: translateX(-120%) skewX(-20deg); } to { transform: translateX(220%) skewX(-20deg); } }
+@keyframes fx-burst { from { opacity: 1; transform: translate(-50%,-50%) scale(.6); } to { opacity: 0; transform: translate(calc(-50% + var(--bx)), calc(-50% + var(--by))) scale(1.1); } }
+.fx-field { position: absolute; mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, #000 45%, transparent 100%); }
+.fx-float { animation: fx-float 5s ease-in-out infinite; }
+.fx-glow { background: radial-gradient(circle, color-mix(in oklab, var(--savings) 55%, transparent), color-mix(in oklab, var(--primary) 35%, transparent) 45%, transparent 70%); filter: blur(30px); animation: fx-glow 6s ease-in-out infinite; }
+.fx-glass { background: linear-gradient(135deg, color-mix(in oklab, var(--primary) 32%, transparent), color-mix(in oklab, var(--savings) 18%, transparent)); border: 1px solid color-mix(in oklab, var(--foreground) 18%, transparent); backdrop-filter: blur(14px); box-shadow: 0 20px 50px -20px color-mix(in oklab, var(--primary) 60%, transparent); }
+.fx-glass-green { background: linear-gradient(135deg, color-mix(in oklab, var(--savings) 34%, transparent), color-mix(in oklab, var(--primary) 14%, transparent)); }
+.fx-coin { background: color-mix(in oklab, var(--savings) 22%, transparent); border: 1px solid color-mix(in oklab, var(--savings) 55%, transparent); color: var(--savings); backdrop-filter: blur(6px); }
+.fx-shine::after { content: ""; position: absolute; inset: 0; width: 40%; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--foreground) 28%, transparent), transparent); transform: translateX(-120%) skewX(-20deg); }
+.group:hover .fx-shine::after { animation: fx-shine 900ms ease-out; }
+.fx-burst { animation: fx-burst 800ms ease-out forwards; }
+@media (prefers-reduced-motion: reduce) { .fx-float, .fx-glow, .fx-spin, .fx-burst, .group:hover .fx-shine::after { animation: none !important; } }
