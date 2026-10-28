@@ -1,0 +1,13 @@
+# Tasks
+- [x] Replace home and chat navigation with savings-first offer experience.
+- [x] Rank sequential opportunities by annual savings / implementation time, retaining Seif and local data.
+- [x] Update onboarding and Seif entry points; verify calculations and complete offer flow.
+- [x] Replace passive recommendations with verified, actionable optimizations and local completion tracking.
+- [x] Add card rewards flow, explicit holdings/eligibility and official-source alerts without unsupported loop claims.
+- [x] Connect verified optimization context to Copilot and test rules and dashboard actions.
+- [x] Reuse an existing blank conversation instead of creating new empty threads.
+- [x] Add global selected-text explanation popup.
+- [x] Connect short Romanian AI explanations without storing selections.
+- [x] Verify selection and explanation end-to-end.
+- [x] Add /acasa home with Tinder-style open-source swap cards, social proof, dual CTAs; rename Extra savings to Reduce costs; logo links home.
+- [x] Simplify Acasă, redirect local profiles to savings, move swaps to Reduce costs and verify both flows.
