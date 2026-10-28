@@ -16,3 +16,5 @@
 - The /acasa visitor landing checks the browser-local profile after hydration and redirects existing profiles to /; it never treats local profile presence as authenticated access to private server data.
 - Illustrative savings scenarios are isolated from personal Seif data and explicitly labeled; missing eligibility or costs produces no monetary card estimate, avoiding unsupported promises.
 - Selected-text explanations are mounted once in the root shell and stream through `/api/explain`; only the selected text is sent, without profile, statement context or persistent storage, to minimize disclosure.
+
+- Phone app ships via Capacitor (capacitor.config.ts loads the hosted web app); store detection runs in browser-safe lib/store-presence.ts with OpenStreetMap lookup, and user cards stay browser-local.

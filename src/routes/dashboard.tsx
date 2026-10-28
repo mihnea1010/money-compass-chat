@@ -10,7 +10,7 @@ import { Abonamente } from "@/components/Abonamente";
 import { SoldConturi } from "@/components/SoldConturi";
 import { ConecteazaBanca } from "@/components/ConecteazaBanca";
 import { parseStatementText, pdfToText, toCSV } from "@/lib/pdfStatement";
-import { OptimizationSettings } from "@/components/OptimizationSettings";
+import { MyCards } from "@/components/MyCards";
 import { EMPTY_SETTINGS, loadOptimizationState, saveOptimizationState, type OptimizationState } from "@/lib/optimization-state";
 
 export const Route = createFileRoute("/dashboard")({
