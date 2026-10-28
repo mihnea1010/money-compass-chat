@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { MapPin, Plus, Trash2 } from "lucide-react";
+import { MapPin, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AddCardDialog } from "@/components/AddCardDialog";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
 import { bestCardForStore, loadCards, saveCards, type MyCard } from "@/lib/my-cards";
 import { useStorePresence } from "@/hooks/use-store-presence";
@@ -88,7 +87,7 @@ export function MyCards() {
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
             <Switch checked={locOn} onCheckedChange={(v) => { setLocOn(v); localStorage.setItem(LOC_KEY, v ? "1" : "0"); }} /> Recunoaște magazinul
           </label>
-          <AddCard onAdd={(c) => update([...cards, c])} />
+          <AddCardDialog onAdd={(c) => update([...cards, c])} />
         </div>
       </div>
       {cards.length === 0 ? <p className="text-sm text-muted-foreground">Adaugă primul tău card.</p> : (
@@ -152,28 +151,3 @@ export function MyCards() {
   );
 }
 
-function AddCard({ onAdd }: { onAdd: (c: MyCard) => void }) {
-  const [open, setOpen] = useState(false);
-  const [bank, setBank] = useState(""); const [name, setName] = useState("");
-  const [merchants, setMerchants] = useState(""); const [percent, setPercent] = useState("5");
-  const submit = () => {
-    const pct = Number(percent) || 0;
-    onAdd({ id: crypto.randomUUID(), bank: bank.trim(), name: name.trim() || "Card", perks: merchants.split(",").map((m) => m.trim()).filter(Boolean).map((merchant) => ({ merchant, percent: pct })) });
-    setOpen(false); setBank(""); setName(""); setMerchants("");
-  };
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild><Button size="sm" variant="outline"><Plus /> Adaugă card</Button></DialogTrigger>
-      <DialogContent>
-        <DialogHeader><DialogTitle>Adaugă un card</DialogTitle></DialogHeader>
-        <div className="space-y-3">
-          <Input placeholder="Banca (ex. ING)" value={bank} onChange={(e) => setBank(e.target.value)} />
-          <Input placeholder="Numele cardului" value={name} onChange={(e) => setName(e.target.value)} />
-          <Input placeholder="Magazine cu cashback, separate prin virgulă" value={merchants} onChange={(e) => setMerchants(e.target.value)} />
-          <Input type="number" placeholder="Cashback %" value={percent} onChange={(e) => setPercent(e.target.value)} />
-          <Button className="w-full" disabled={!bank.trim()} onClick={submit}>Salvează</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}

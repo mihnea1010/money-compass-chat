@@ -1,4 +1,5 @@
 # Tasks
+- [ ] Add and verify the validated new-card form, masked-CVV flip preview and safe metadata persistence.
 - [x] Rebuild profile with signed-out, name-only and complete account/demo states.
 - [x] Add account password change and confirmed self-deletion.
 - [x] Add masked, demo-only card details; verify demo profile and card reveal/hide/reopen flows.
