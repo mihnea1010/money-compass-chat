@@ -18,3 +18,4 @@
 - Selected-text explanations are mounted once in the root shell and stream through `/api/explain`; only the selected text is sent, without profile, statement context or persistent storage, to minimize disclosure.
 
 - Phone app ships via Capacitor (capacitor.config.ts loads the hosted web app); store detection runs in browser-safe lib/store-presence.ts with OpenStreetMap lookup, and user cards stay browser-local.
+- Card savings popovers render through a body-level portal placed from the card's viewport rect (flipping below when near the top), never as in-flow carousel content — the carousel viewport clips in-flow overlays, and reserving space for them pushed the card row down, which the user rejected.
