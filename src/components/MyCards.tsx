@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MapPin, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
 import { bestCardForStore, loadCards, saveCards, type MyCard } from "@/lib/my-cards";
 import { useStorePresence } from "@/hooks/use-store-presence";
 
@@ -41,7 +41,14 @@ function useCardPopup() {
     };
   }, [activeId]);
 
-  return { activeId, setActiveId, box, refs, reposition: () => placeRef.current?.() };
+  /** Panoul trebuie să urmărească și glisarea carouselului, nu doar scroll-ul paginii. */
+  const attachApi = useCallback((api: CarouselApi) => {
+    if (!api) return;
+    const run = () => placeRef.current?.();
+    (["scroll", "settle", "select", "pointerUp", "reInit", "resize"] as const).forEach((e) => api.on(e, run));
+  }, []);
+
+  return { activeId, setActiveId, box, refs, attachApi };
 }
 
 export function MyCards() {
@@ -73,7 +80,7 @@ export function MyCards() {
         </div>
       </div>
       {cards.length === 0 ? <p className="text-sm text-muted-foreground">Adaugă primul tău card.</p> : (
-        <Carousel opts={{ align: "start", dragFree: true }} className="px-10" setApi={(api) => api?.on("scroll", popup.reposition)}>
+        <Carousel opts={{ align: "start", dragFree: true }} className="px-10" setApi={popup.attachApi}>
           <CarouselContent className="py-2">
             {cards.map((c) => {
               const hi = best?.card.id === c.id;
