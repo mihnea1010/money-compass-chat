@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { AppSidebar, Logo } from "@/components/AppSidebar";
 import { SelectionExplanation } from "@/components/SelectionExplanation";
 import { ProfileGate } from "@/components/ProfileGate";
+import { AuthProvider } from "@/hooks/use-auth";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -124,6 +125,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthProvider>
       <AppShell>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
@@ -131,6 +133,7 @@ function RootComponent() {
       <Toaster />
       <ProfileGate />
       <SelectionExplanation />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

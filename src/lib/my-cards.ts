@@ -1,6 +1,6 @@
 /** Cardurile utilizatorului, stocate doar în browser. */
 export type CardPerk = { merchant: string; percent: number };
-export type MyCard = { id: string; bank: string; name: string; perks: CardPerk[]; style?: string; last4?: string };
+export type MyCard = { id: string; bank: string; name: string; perks: CardPerk[]; style?: string; last4?: string; network?: "Visa" | "Mastercard" };
 
 const KEY = "bestsaves.myCards.v3";
 
@@ -32,7 +32,8 @@ export function loadCards(): MyCard[] {
     const raw = localStorage.getItem(KEY);
     if (!raw) return DEFAULT_CARDS;
     const saved = JSON.parse(raw) as MyCard[];
-    return saved.some((c) => c.bank === "Raiffeisen") ? saved : [...saved, DEFAULT_CARDS.find((c) => c.bank === "Raiffeisen")!];
+    const preset = DEFAULT_CARDS.find((c) => c.bank === "Raiffeisen");
+    return saved.some((c) => c.bank === "Raiffeisen") || !preset ? saved : [...saved, preset];
   } catch {
     return [];
   }
