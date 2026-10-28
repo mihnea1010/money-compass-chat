@@ -75,19 +75,19 @@ function Dashboard() {
 
   if (!loaded) return null;
   if (!tranz) return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto bg-gradient-to-b from-warning-soft via-warning-soft/40 to-transparent">
       <div className="mx-auto max-w-2xl space-y-6 px-4 py-16 text-center md:px-8">
-        <h1 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">Seif financiar</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-warning-foreground md:text-3xl">Seif financiar</h1>
         <p className="text-sm text-muted-foreground">Încarcă un extras bancar CSV. Îl citim în browser, iar un AI mic clasifică doar descrierile și sumele.</p>
-        <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-10 text-sm text-muted-foreground hover:bg-muted/50"
+        <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-warning/70 bg-warning-soft/70 p-10 text-sm text-muted-foreground transition-colors hover:border-warning hover:bg-warning/15"
           onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); onFile(e.dataTransfer.files[0]); }}>
-          {scanning ? <Loader2 className="size-6 animate-spin" /> : <FileUp className="size-6" />}
-          <div className="font-medium text-foreground">{scanning ? "Scanez tranzacțiile…" : "Încarcă extras bancar (CSV sau PDF)"}</div>
+          {scanning ? <Loader2 className="size-6 animate-spin text-warning-foreground" /> : <FileUp className="size-6 text-warning-foreground" />}
+          <div className="font-medium text-warning-foreground">{scanning ? "Scanez tranzacțiile…" : "Încarcă extras bancar (CSV sau PDF)"}</div>
           <div>CSV: Data, Descriere, Suma · PDF: ING sau Revolut, citit local</div>
           <input ref={fileRef} type="file" accept=".csv,text/csv,.pdf,application/pdf" className="hidden" disabled={scanning} onChange={(e) => onFile(e.target.files?.[0])} />
         </label>
-        <div className="space-y-2 text-left"><div className="text-sm font-medium">Sau conectează banca prin Open Banking</div><ConecteazaBanca disabled={scanning} onConfirm={demo} /></div>
-        <Button variant="ghost" onClick={demo} disabled={scanning}>Folosește extrasul demo</Button>
+        <div className="space-y-2 rounded-2xl border border-warning/40 bg-card/60 p-4 text-left"><div className="text-sm font-medium">Sau conectează banca prin Open Banking</div><ConecteazaBanca disabled={scanning} onConfirm={demo} /></div>
+        <Button variant="outline" className="border-warning/60 text-warning-foreground hover:bg-warning/15 hover:text-warning-foreground" onClick={demo} disabled={scanning}>Folosește extrasul demo</Button>
         {err && <p className="text-sm text-destructive">{err}</p>}
       </div>
     </div>
