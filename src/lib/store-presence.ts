@@ -36,7 +36,7 @@ export async function fetchNearbyStores(lat: number, lon: number, merchants: str
   const json = (await res.json()) as { elements: { type: string; id: number; lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> }[] };
   return json.elements.flatMap((e) => {
     const la = e.lat ?? e.center?.lat, lo = e.lon ?? e.center?.lon;
-    const name = e.tags?.brand ?? e.tags?.name;
+    const name = e.tags?.["brand"] ?? e.tags?.["name"];
     return la != null && lo != null && name ? [{ id: `${e.type}/${e.id}`, name, lat: la, lon: lo }] : [];
   });
 }
