@@ -10,7 +10,7 @@ import { Abonamente } from "@/components/Abonamente";
 import { SoldConturi } from "@/components/SoldConturi";
 import { ConecteazaBanca } from "@/components/ConecteazaBanca";
 import { parseStatementText, pdfToText, toCSV } from "@/lib/pdfStatement";
-import { OptimizationSettings } from "@/components/OptimizationSettings";
+import { MyCards } from "@/components/MyCards";
 import { EMPTY_SETTINGS, loadOptimizationState, saveOptimizationState, type OptimizationState } from "@/lib/optimization-state";
 
 export const Route = createFileRoute("/dashboard")({
@@ -135,7 +135,7 @@ function Dashboard() {
           <Kpi label="Cheltuieli lunare" value={formatRON(totalCheltuieli)} hint={`medie / lună · ${CHELTUIELI.length} categorii`} />
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-y py-4"><div><h2 className="font-medium">Oferte potrivite cheltuielilor tale</h2><p className="mt-1 text-xs text-muted-foreground">Completează costurile și eligibilitatea pentru economii mai precise.</p></div><OptimizationSettings value={optimization.settings} onSave={(settings) => { const next = { ...optimization, settings }; saveOptimizationState(next); setOptimization(next); }} /><Button variant="savings" onClick={() => navigate({ to: "/" })}>Vezi cât poți economisi <ArrowRight /></Button></div>
+        <MyCards />
 
         <div className="grid gap-4 lg:grid-cols-5">
           <section className={`rounded-2xl border bg-card p-5 shadow-soft transition-all ${focus ? "ring-2 ring-primary/30 lg:col-span-5" : "lg:col-span-2"}`}>
