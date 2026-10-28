@@ -59,6 +59,9 @@
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
   --color-warning-foreground: var(--warning-foreground);
+  --color-await: var(--await);
+  --color-await-soft: var(--await-soft);
+  --color-await-foreground: var(--await-foreground);
   --color-savings: var(--savings);
   --color-savings-foreground: var(--savings-foreground);
   --shadow-soft: 0 1px 2px oklch(0.2 0.03 270 / 0.04), 0 4px 16px -6px oklch(0.2 0.03 270 / 0.08);
@@ -100,6 +103,9 @@
   --warning: oklch(0.75 0.16 65);
   --warning-soft: oklch(0.96 0.05 80);
   --warning-foreground: oklch(0.5 0.13 55);
+  --await: oklch(0.78 0.17 92);
+  --await-soft: oklch(0.96 0.08 95);
+  --await-foreground: oklch(0.42 0.13 85);
   --chart-1: oklch(0.45 0.19 272);
   --chart-2: oklch(0.65 0.14 230);
   --chart-3: oklch(0.72 0.13 170);
@@ -155,6 +161,9 @@
   --warning: oklch(0.77 0.14 75);
   --warning-soft: oklch(0.26 0.04 75);
   --warning-foreground: oklch(0.83 0.11 80);
+  --await: oklch(0.88 0.17 98);
+  --await-soft: oklch(0.88 0.17 98 / 0.16);
+  --await-foreground: oklch(0.91 0.14 98);
 }
 
 @layer base {
