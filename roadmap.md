@@ -1,4 +1,7 @@
 # Tasks
+- [ ] Rebuild profile with signed-out, name-only and complete account/demo states.
+- [ ] Add account password change and confirmed self-deletion.
+- [ ] Add masked, demo-only card details and verify profile/card flows.
 - [x] Replace home and chat navigation with savings-first offer experience.
 - [x] Rank sequential opportunities by annual savings / implementation time, retaining Seif and local data.
 - [x] Update onboarding and Seif entry points; verify calculations and complete offer flow.
