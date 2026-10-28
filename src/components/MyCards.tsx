@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { bestCardForStore, loadCards, perkSummary, saveCards, type MyCard } from "@/lib/my-cards";
+import { bestCardForStore, loadCards, saveCards, type MyCard } from "@/lib/my-cards";
 import { useStorePresence } from "@/hooks/use-store-presence";
 
 const WALLET: Record<string, string> = { ing: "wallet-ing", "ing-alt": "wallet-ing-alt", bcr: "wallet-bcr", "bcr-alt": "wallet-bcr-alt", bt: "wallet-bt", "bt-alt": "wallet-bt-alt", raiffeisen: "wallet-raiffeisen" };
@@ -39,14 +39,28 @@ export function MyCards() {
       </div>
       {cards.length === 0 ? <p className="text-sm text-muted-foreground">Adaugă primul tău card.</p> : (
         <Carousel opts={{ align: "start", dragFree: true }} className="px-10">
-          <CarouselContent className="pb-2 pt-12">
+          <CarouselContent className="pb-2 pt-36">
             {cards.map((c) => {
               const hi = best?.card.id === c.id;
               return (
                 <CarouselItem key={c.id} className="basis-auto">
                   <div tabIndex={0}
                     className={`${WALLET[c.style ?? ""] ?? "wallet-default"} group relative flex h-36 w-60 flex-col justify-between rounded-2xl p-4 text-wallet-foreground shadow-soft outline-none transition-transform hover:-translate-y-1 focus:ring-2 focus:ring-primary/40 ${hi ? "scale-[1.04] ring-4 ring-primary" : ""}`}>
-                    <div className="pointer-events-none absolute -top-10 left-0 z-10 w-max max-w-64 rounded-lg bg-popover px-2.5 py-1.5 text-xs text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 group-focus:opacity-100">{perkSummary(c)}</div>
+                    <div className="pointer-events-none absolute bottom-full left-0 z-10 mb-2 w-56 translate-y-1 rounded-xl border bg-popover p-3 text-popover-foreground opacity-0 shadow-lg transition-all group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100">
+                      <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-primary">Top 3 oportunități de salvare</div>
+                      {c.perks.length === 0 ? <p className="text-xs text-muted-foreground">Nicio ofertă adăugată</p> : (
+                        <ol className="space-y-1.5">
+                          {[...c.perks].sort((a, b) => b.percent - a.percent).slice(0, 3).map((p, i) => (
+                            <li key={p.merchant} className="flex items-center gap-2 text-xs">
+                              <span className="grid size-5 place-items-center rounded-full bg-primary/15 text-[10px] font-semibold text-primary">{i + 1}</span>
+                              <span className="flex-1 truncate">{p.merchant}</span>
+                              <span className="rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">{p.percent}%</span>
+                            </li>
+                          ))}
+                        </ol>
+                      )}
+                      {c.perks.length > 3 && <p className="mt-2 text-[10px] text-muted-foreground">și încă {c.perks.length - 3}</p>}
+                    </div>
                     <div className="flex items-start justify-between gap-2">
                       <div className="truncate text-base font-semibold">{c.bank}</div>
                       {hi ? <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">Cel mai bun aici</span>
