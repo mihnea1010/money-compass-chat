@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { AddCardDialog } from "@/components/AddCardDialog";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
-import { bestCardForStore, loadCards, saveCards, type MyCard } from "@/lib/my-cards";
+import { bestCardForStore, type MyCard } from "@/lib/my-cards";
 import { useStorePresence } from "@/hooks/use-store-presence";
+import { bootstrapCards, useStore } from "@/store/useStore";
 import { HIGHLIGHT_KEY } from "@/lib/simulate-store";
 import { CardDetailDialog } from "@/components/CardDetailDialog";
 
@@ -54,7 +55,7 @@ function useCardPopup() {
 
 export function MyCards() {
   const [detail, setDetail] = useState<MyCard | null>(null);
-  const [cards, setCards] = useState<MyCard[]>([]);
+  const cards = useStore((s) => s.userCards);
   const [locOn, setLocOn] = useState(false);
   const popup = useCardPopup();
   const [glowId, setGlowId] = useState<string | null>(null);
@@ -65,10 +66,10 @@ export function MyCards() {
     return () => window.removeEventListener("bestsaves:highlight", read);
   }, []);
   useEffect(() => { if (glowId) api?.scrollTo(0); }, [glowId, api]);
-  useEffect(() => { setCards(loadCards()); setLocOn(localStorage.getItem(LOC_KEY) === "1"); }, []);
+  useEffect(() => { bootstrapCards(); setLocOn(localStorage.getItem(LOC_KEY) === "1"); }, []);
   const { store, error } = useStorePresence(cards, locOn);
+  const removeCard = useStore((s) => s.removeCard);
   const best = store ? bestCardForStore(cards, store.name) : null;
-  const update = (next: MyCard[]) => { setCards(next); saveCards(next); };
   const shown = glowId ? [...cards].sort((a, b) => (a.id === glowId ? -1 : b.id === glowId ? 1 : 0)) : cards;
   const active = popup.activeId ? cards.find((c) => c.id === popup.activeId) : undefined;
 
@@ -87,7 +88,7 @@ export function MyCards() {
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
             <Switch checked={locOn} onCheckedChange={(v) => { setLocOn(v); localStorage.setItem(LOC_KEY, v ? "1" : "0"); }} /> Recunoaște magazinul
           </label>
-          <AddCardDialog onAdd={(c) => update([...cards, c])} />
+          <AddCardDialog />
         </div>
       </div>
       {cards.length === 0 ? <p className="text-sm text-muted-foreground">Adaugă primul tău card.</p> : (
@@ -110,7 +111,7 @@ export function MyCards() {
                     <div className="flex items-start justify-between gap-2">
                       <div className="truncate text-base font-semibold">{c.bank}</div>
                       {hi ? <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">Cel mai bun aici</span>
-                        : <Button variant="ghost" size="icon-sm" aria-label={`Șterge ${c.bank} ${c.name}`} onClick={(e) => { e.stopPropagation(); update(cards.filter((x) => x.id !== c.id)); }} className="opacity-0 transition-opacity group-hover:opacity-80 focus:opacity-100"><Trash2 className="size-3.5" /></Button>}
+                        : <Button variant="ghost" size="icon-sm" aria-label={`Șterge ${c.bank} ${c.name}`} onClick={(e) => { e.stopPropagation(); removeCard(c.id); }} className="opacity-0 transition-opacity group-hover:opacity-80 focus:opacity-100"><Trash2 className="size-3.5" /></Button>}
                     </div>
                     <div className="h-6 w-9 rounded-md bg-wallet-foreground/30" />
                     <div className="flex items-end justify-between text-xs">

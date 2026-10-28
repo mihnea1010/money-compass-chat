@@ -24,3 +24,4 @@
 - Account deletion targets only the validated caller in an authenticated server function; privileged clients load only inside the handler.
 - CardDetailDialog mounts per selected card and keeps demo unlock input ephemeral; fictitious test details never originate from stored real card data.
 - AddCardDialog collects only the 6-digit BIN and the last 4 digits (no CVV field, no PAN, so no Luhn check is possible), validated with React Hook Form and a shared Zod/card-validator schema; only last four digits, network and wallet metadata are persisted, never full numbers, CVV, holder or expiry, to avoid storing payment credentials.
+- The wallet's single source of truth is the zustand store `src/store/useStore.ts` (persisted to localStorage key `bestsaves.userCards.v1`); legacy `bestsaves.myCards.v3` is migrated once via `bootstrapCards()` called from `useEffect`, never at module scope, so SSR renders stay consistent.
