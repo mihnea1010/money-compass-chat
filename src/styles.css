@@ -197,3 +197,8 @@
 @utility wallet-default {
   background: linear-gradient(135deg, oklch(0.45 0.05 260), oklch(0.3 0.03 260));
 }
+
+@utility wallet-raiffeisen {
+  background: linear-gradient(135deg, oklch(0.88 0.17 98), oklch(0.72 0.16 85));
+  color: oklch(0.2 0.02 90);
+}

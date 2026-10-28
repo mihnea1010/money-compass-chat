@@ -7,6 +7,7 @@ export const CONTURI_DEMO: Cont[] = [
   { banca: "ING", tip: "curent", sold: 8420.35 },
   { banca: "BCR", tip: "curent", sold: 2310.8 },
   { banca: "Banca Transilvania", tip: "curent", sold: 1145.2 },
+  { banca: "Raiffeisen", tip: "curent", sold: 3275.4 },
   { banca: "ING", tip: "economii", sold: 15200 },
   { banca: "BCR", tip: "economii", sold: 4800 },
   { banca: "Banca Transilvania", tip: "economii", sold: 9350 },

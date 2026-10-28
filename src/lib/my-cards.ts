@@ -22,6 +22,7 @@ export const DEFAULT_CARDS: MyCard[] = [
   { id: "bcr-debit", bank: "BCR", name: "Card de debit", perks: [], style: "bcr", last4: "1934" },
   { id: "bcr-credit", bank: "BCR", name: "Card de credit", perks: [], style: "bcr-alt", last4: "6602" },
   { id: "bt-debit", bank: "Banca Transilvania", name: "Card de debit", perks: [], style: "bt", last4: "2257" },
+  { id: "raiffeisen-cashback", bank: "Raiffeisen", name: "Card cashback", perks: [{ merchant: "Carrefour", percent: 5 }, { merchant: "Auchan", percent: 5 }], style: "raiffeisen", last4: "5083" },
   { id: "bt-credit", bank: "Banca Transilvania", name: "Card de credit", perks: [], style: "bt-alt", last4: "9148" },
 ];
 
@@ -29,7 +30,9 @@ export function loadCards(): MyCard[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as MyCard[]) : DEFAULT_CARDS;
+    if (!raw) return DEFAULT_CARDS;
+    const saved = JSON.parse(raw) as MyCard[];
+    return saved.some((c) => c.bank === "Raiffeisen") ? saved : [...saved, DEFAULT_CARDS.find((c) => c.bank === "Raiffeisen")!];
   } catch {
     return [];
   }

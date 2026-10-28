@@ -8,7 +8,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { bestCardForStore, loadCards, perkSummary, saveCards, type MyCard } from "@/lib/my-cards";
 import { useStorePresence } from "@/hooks/use-store-presence";
 
-const WALLET: Record<string, string> = { ing: "wallet-ing", "ing-alt": "wallet-ing-alt", bcr: "wallet-bcr", "bcr-alt": "wallet-bcr-alt", bt: "wallet-bt", "bt-alt": "wallet-bt-alt" };
+const WALLET: Record<string, string> = { ing: "wallet-ing", "ing-alt": "wallet-ing-alt", bcr: "wallet-bcr", "bcr-alt": "wallet-bcr-alt", bt: "wallet-bt", "bt-alt": "wallet-bt-alt", raiffeisen: "wallet-raiffeisen" };
 const LOC_KEY = "bestsaves.locationOn";
 
 export function MyCards() {
