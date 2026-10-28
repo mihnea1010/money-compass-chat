@@ -7,28 +7,34 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { cardInputSchema, cardMetadata, detectNetwork, digitsOnly, formatExpiry, formatHolder, type CardInput } from "@/lib/card-input";
 import type { MyCard } from "@/lib/my-cards";
+import { useStore } from "@/store/useStore";
 
-export function AddCardDialog({ onAdd }: { onAdd: (card: MyCard) => void }) {
+export function AddCardDialog() {
   const [open, setOpen] = useState(false);
   return <Dialog open={open} onOpenChange={setOpen}>
     <DialogTrigger asChild><Button size="sm" variant="outline"><Plus /> Adaugă card</Button></DialogTrigger>
     <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
       <DialogHeader><DialogTitle>Adaugă card nou</DialogTitle><DialogDescription>Se introduc doar codul BIN și ultimele 4 cifre; nimic nu este salvat sau trimis.</DialogDescription></DialogHeader>
-      {open && <CardForm onAdd={(card) => { onAdd(card); setOpen(false); }} />}
+      {open && <CardForm onDone={() => setOpen(false)} />}
     </DialogContent>
   </Dialog>;
 }
 
 const mask = (value: string, length: number) => (value + "•".repeat(length)).slice(0, length);
 
-function CardForm({ onAdd }: { onAdd: (card: MyCard) => void }) {
+function CardForm({ onDone }: { onDone: () => void }) {
+  const addCard = useStore((s) => s.addCard);
   const { register, watch, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<CardInput>({ resolver: zodResolver(cardInputSchema()), mode: "onTouched", defaultValues: { bank: "", bin: "", last4: "", holder: "", expiry: "", merchants: "", percent: 5 } });
   const values = watch();
   const network = detectNetwork(values.bin);
   const previewNumber = values.bin || values.last4 ? `${mask(values.bin, 6)} •••• •••• ${mask(values.last4, 4)}` : "•••••• •••• •••• ••••";
   const error = (field: keyof CardInput) => errors[field] ? <p id={`card-${field}-error`} role="alert" className="text-xs text-destructive">{errors[field]?.message}</p> : null;
   const accessibility = (field: keyof CardInput) => ({ id: `card-${field}`, "aria-invalid": Boolean(errors[field]), "aria-describedby": errors[field] ? `card-${field}-error` : undefined });
-  return <form className="space-y-4" autoComplete="off" onSubmit={handleSubmit((data) => onAdd(cardMetadata(data, crypto.randomUUID())))}>
+  return <form className="space-y-4" autoComplete="off" onSubmit={handleSubmit((data) => {
+    const card: MyCard = cardMetadata(data, crypto.randomUUID());
+    addCard(card);
+    onDone();
+  })}>
     <div className="card-preview-scene mx-auto w-full max-w-sm" aria-label="Previzualizare card">
       <div className="card-preview-turn">
         <div className="card-preview-face wallet-bt-alt flex flex-col justify-between p-5 text-wallet-foreground shadow-soft">
