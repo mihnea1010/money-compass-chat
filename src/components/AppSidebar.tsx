@@ -1,7 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { ArrowUpRight, UserRound, Vault, ShieldCheck, Sparkles, PiggyBank, LogIn, LogOut, Settings, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { clearProfile, useProfile } from "@/lib/profile";
+import { clearProfile } from "@/lib/profile";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useSavings } from "@/hooks/use-savings";
