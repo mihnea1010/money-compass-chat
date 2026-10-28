@@ -19,6 +19,7 @@
  */
 
 @theme inline {
+  --color-wallet-foreground: oklch(0.99 0 0);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

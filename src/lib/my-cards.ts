@@ -1,8 +1,8 @@
 /** Cardurile utilizatorului, stocate doar în browser. */
 export type CardPerk = { merchant: string; percent: number };
-export type MyCard = { id: string; bank: string; name: string; perks: CardPerk[] };
+export type MyCard = { id: string; bank: string; name: string; perks: CardPerk[]; style?: string; last4?: string };
 
-const KEY = "bestsaves.myCards";
+const KEY = "bestsaves.myCards.v2";
 
 /** Card preconfigurat la cererea utilizatorului: Raiffeisen 5% cashback la Carrefour și Auchan. */
 export const RAIFFEISEN_PRESET: MyCard = {
@@ -15,11 +15,21 @@ export const RAIFFEISEN_PRESET: MyCard = {
   ],
 };
 
+/** Cardurile băncilor din Seif (ING, BCR, Banca Transilvania). Ofertele de cashback le adaugi tu. */
+export const DEFAULT_CARDS: MyCard[] = [
+  { id: "ing-debit", bank: "ING", name: "Card de debit", perks: [], style: "ing", last4: "4821" },
+  { id: "ing-credit", bank: "ING", name: "Card de credit", perks: [], style: "ing-alt", last4: "7310" },
+  { id: "bcr-debit", bank: "BCR", name: "Card de debit", perks: [], style: "bcr", last4: "1934" },
+  { id: "bcr-credit", bank: "BCR", name: "Card de credit", perks: [], style: "bcr-alt", last4: "6602" },
+  { id: "bt-debit", bank: "Banca Transilvania", name: "Card de debit", perks: [], style: "bt", last4: "2257" },
+  { id: "bt-credit", bank: "Banca Transilvania", name: "Card de credit", perks: [], style: "bt-alt", last4: "9148" },
+];
+
 export function loadCards(): MyCard[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as MyCard[]) : [RAIFFEISEN_PRESET];
+    return raw ? (JSON.parse(raw) as MyCard[]) : DEFAULT_CARDS;
   } catch {
     return [];
   }
