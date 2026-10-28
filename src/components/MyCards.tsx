@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { bestCardForStore, loadCards, perkSummary, saveCards, type MyCard } from "@/lib/my-cards";
 import { useStorePresence } from "@/hooks/use-store-presence";
 
@@ -35,22 +36,35 @@ export function MyCards() {
           <AddCard onAdd={(c) => update([...cards, c])} />
         </div>
       </div>
-      <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-2 pt-12">
-        {cards.length === 0 && <p className="text-sm text-muted-foreground">Adaugă primul tău card.</p>}
-        {cards.map((c) => {
-          const hi = best?.card.id === c.id;
-          return (
-            <div key={c.id} tabIndex={0} className={`group relative h-16 w-56 shrink-0 snap-start rounded-xl border bg-card px-4 py-2.5 shadow-soft outline-none transition-all focus:ring-2 focus:ring-primary/30 ${hi ? "scale-[1.03] border-primary ring-2 ring-primary" : ""}`}>
-              <div className="pointer-events-none absolute -top-10 left-0 z-10 w-max max-w-64 rounded-lg bg-popover px-2.5 py-1.5 text-xs text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 group-focus:opacity-100">{perkSummary(c)}</div>
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0"><div className="truncate text-sm font-semibold">{c.bank}</div><div className="truncate text-xs text-muted-foreground">{c.name}</div></div>
-                {hi ? <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">Cel mai bun aici</span>
-                  : <button type="button" aria-label={`Șterge ${c.bank}`} onClick={() => update(cards.filter((x) => x.id !== c.id))} className="text-muted-foreground opacity-0 hover:text-destructive group-hover:opacity-100"><Trash2 className="size-3.5" /></button>}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      {cards.length === 0 ? <p className="text-sm text-muted-foreground">Adaugă primul tău card.</p> : (
+        <Carousel opts={{ align: "start", dragFree: true }} className="px-10">
+          <CarouselContent className="pb-2 pt-12">
+            {cards.map((c) => {
+              const hi = best?.card.id === c.id;
+              return (
+                <CarouselItem key={c.id} className="basis-auto">
+                  <div tabIndex={0} style={{ background: `var(--wallet-${c.style ?? "default"}, var(--wallet-default))` }}
+                    className={`group relative flex h-36 w-60 flex-col justify-between rounded-2xl p-4 text-wallet-foreground shadow-soft outline-none transition-transform hover:-translate-y-1 focus:ring-2 focus:ring-primary/40 ${hi ? "scale-[1.04] ring-4 ring-primary" : ""}`}>
+                    <div className="pointer-events-none absolute -top-10 left-0 z-10 w-max max-w-64 rounded-lg bg-popover px-2.5 py-1.5 text-xs text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 group-focus:opacity-100">{perkSummary(c)}</div>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="truncate text-base font-semibold">{c.bank}</div>
+                      {hi ? <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">Cel mai bun aici</span>
+                        : <button type="button" aria-label={`Șterge ${c.bank} ${c.name}`} onClick={() => update(cards.filter((x) => x.id !== c.id))} className="opacity-0 transition-opacity group-hover:opacity-80 hover:opacity-100"><Trash2 className="size-3.5" /></button>}
+                    </div>
+                    <div className="h-6 w-9 rounded-md bg-wallet-foreground/30" />
+                    <div className="flex items-end justify-between text-xs">
+                      <span className="opacity-90">{c.name}</span>
+                      <span className="font-mono tracking-wider opacity-90">•••• {c.last4 ?? "0000"}</span>
+                    </div>
+                  </div>
+                </CarouselItem>
+              );
+            })}
+          </CarouselContent>
+          <CarouselPrevious className="left-0" />
+          <CarouselNext className="right-0" />
+        </Carousel>
+      )}
     </section>
   );
 }
