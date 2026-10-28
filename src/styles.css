@@ -211,9 +211,9 @@
 }
 
 @utility await-panel {
-  background: linear-gradient(135deg, var(--await), color-mix(in oklab, var(--await) 74%, oklch(0.62 0.19 60)));
+  background: linear-gradient(135deg, var(--await), color-mix(in oklch, var(--await) 72%, oklch(0.66 0.18 82)));
   color: var(--await-ink);
-  box-shadow: 0 18px 44px -20px color-mix(in oklab, var(--await) 70%, transparent);
+  box-shadow: 0 18px 44px -20px color-mix(in oklch, var(--await) 70%, transparent);
 }
 
 @utility wallet-raiffeisen {
