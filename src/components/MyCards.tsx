@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { AddCardDialog } from "@/components/AddCardDialog";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
-import { bestCardForStore, loadCards, saveCards, type MyCard } from "@/lib/my-cards";
+import { bestCardForStore, type MyCard } from "@/lib/my-cards";
 import { useStorePresence } from "@/hooks/use-store-presence";
+import { bootstrapCards, useStore } from "@/store/useStore";
 import { HIGHLIGHT_KEY } from "@/lib/simulate-store";
 import { CardDetailDialog } from "@/components/CardDetailDialog";
 
@@ -54,7 +55,7 @@ function useCardPopup() {
 
 export function MyCards() {
   const [detail, setDetail] = useState<MyCard | null>(null);
-  const [cards, setCards] = useState<MyCard[]>([]);
+  const cards = useStore((s) => s.userCards);
   const [locOn, setLocOn] = useState(false);
   const popup = useCardPopup();
   const [glowId, setGlowId] = useState<string | null>(null);
@@ -65,10 +66,10 @@ export function MyCards() {
     return () => window.removeEventListener("bestsaves:highlight", read);
   }, []);
   useEffect(() => { if (glowId) api?.scrollTo(0); }, [glowId, api]);
-  useEffect(() => { setCards(loadCards()); setLocOn(localStorage.getItem(LOC_KEY) === "1"); }, []);
+  useEffect(() => { bootstrapCards(); setLocOn(localStorage.getItem(LOC_KEY) === "1"); }, []);
   const { store, error } = useStorePresence(cards, locOn);
+  const removeCard = useStore((s) => s.removeCard);
   const best = store ? bestCardForStore(cards, store.name) : null;
-  const update = (next: MyCard[]) => { setCards(next); saveCards(next); };
   const shown = glowId ? [...cards].sort((a, b) => (a.id === glowId ? -1 : b.id === glowId ? 1 : 0)) : cards;
   const active = popup.activeId ? cards.find((c) => c.id === popup.activeId) : undefined;
 
