@@ -10,8 +10,8 @@ const COINS = [
   { x: 30, y: 8, t: "€", d: 0.7, s: 28 }, { x: 88, y: 82, t: "%", d: 0.6, s: 26 },
   { x: 6, y: 44, t: "€", d: 0.9, s: 24 }, { x: 70, y: 92, t: "lei", d: 0.8, s: 30 },
 ];
-const NODES = [[10, 20], [30, 50], [55, 30], [75, 55], [90, 25], [45, 80], [20, 85], [85, 85]];
-const EDGES = [[0, 1], [1, 2], [2, 3], [3, 4], [1, 5], [5, 6], [3, 7], [2, 4], [5, 3]];
+const NODES: [number, number][] = [[10, 20], [30, 50], [55, 30], [75, 55], [90, 25], [45, 80], [20, 85], [85, 85]];
+const EDGES: [number, number][] = [[0, 1], [1, 2], [2, 3], [3, 4], [1, 5], [5, 6], [3, 7], [2, 4], [5, 3]];
 
 export function SavingsGraphic({ className = "" }: { className?: string }) {
   const root = useRef<HTMLDivElement>(null);
@@ -67,7 +67,7 @@ export function SavingsGraphic({ className = "" }: { className?: string }) {
   return (
     <div ref={root} aria-hidden="true" onClick={burst} className={`fx-field select-none [perspective:900px] ${className}`}>
       <svg className="absolute inset-0 size-full opacity-25" style={par(0.15)} viewBox="0 0 100 100" preserveAspectRatio="none">
-        {EDGES.map(([a, b]) => <line key={`${a}-${b}`} x1={NODES[a][0]} y1={NODES[a][1]} x2={NODES[b][0]} y2={NODES[b][1]} stroke="var(--primary)" strokeWidth="0.25" />)}
+        {EDGES.map(([a, b]) => { const p = NODES[a]!, q = NODES[b]!; return <line key={`${a}-${b}`} x1={p[0]} y1={p[1]} x2={q[0]} y2={q[1]} stroke="var(--primary)" strokeWidth="0.25" />; })}
         {NODES.map(([x, y]) => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.9" fill="var(--savings)" />)}
       </svg>
       <div className="fx-glow absolute left-1/2 top-1/2 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full" />
