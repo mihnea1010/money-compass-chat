@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
 import { bestCardForStore, loadCards, saveCards, type MyCard } from "@/lib/my-cards";
 import { useStorePresence } from "@/hooks/use-store-presence";
+import { HIGHLIGHT_KEY } from "@/lib/simulate-store";
 
 const WALLET: Record<string, string> = { ing: "wallet-ing", "ing-alt": "wallet-ing-alt", bcr: "wallet-bcr", "bcr-alt": "wallet-bcr-alt", bt: "wallet-bt", "bt-alt": "wallet-bt-alt", raiffeisen: "wallet-raiffeisen" };
 const LOC_KEY = "bestsaves.locationOn";
@@ -55,10 +56,19 @@ export function MyCards() {
   const [cards, setCards] = useState<MyCard[]>([]);
   const [locOn, setLocOn] = useState(false);
   const popup = useCardPopup();
+  const [glowId, setGlowId] = useState<string | null>(null);
+  const [api, setApi] = useState<CarouselApi>();
+  useEffect(() => {
+    const read = () => { const id = sessionStorage.getItem(HIGHLIGHT_KEY); if (id) { setGlowId(id); sessionStorage.removeItem(HIGHLIGHT_KEY); } };
+    read(); window.addEventListener("bestsaves:highlight", read);
+    return () => window.removeEventListener("bestsaves:highlight", read);
+  }, []);
+  useEffect(() => { if (glowId) api?.scrollTo(0); }, [glowId, api]);
   useEffect(() => { setCards(loadCards()); setLocOn(localStorage.getItem(LOC_KEY) === "1"); }, []);
   const { store, error } = useStorePresence(cards, locOn);
   const best = store ? bestCardForStore(cards, store.name) : null;
   const update = (next: MyCard[]) => { setCards(next); saveCards(next); };
+  const shown = glowId ? [...cards].sort((a, b) => (a.id === glowId ? -1 : b.id === glowId ? 1 : 0)) : cards;
   const active = popup.activeId ? cards.find((c) => c.id === popup.activeId) : undefined;
 
   return (
@@ -80,10 +90,11 @@ export function MyCards() {
         </div>
       </div>
       {cards.length === 0 ? <p className="text-sm text-muted-foreground">Adaugă primul tău card.</p> : (
-        <Carousel opts={{ align: "start", dragFree: true }} className="px-10" setApi={popup.attachApi}>
+        <Carousel opts={{ align: "start", dragFree: true }} className="px-10" setApi={(a) => { popup.attachApi(a); setApi(a); }}>
           <CarouselContent className="py-2">
-            {cards.map((c) => {
+            {shown.map((c) => {
               const hi = best?.card.id === c.id;
+              const glow = glowId === c.id;
               return (
                 <CarouselItem key={c.id} className="basis-auto">
                   <div tabIndex={0}
@@ -92,7 +103,7 @@ export function MyCards() {
                     onMouseLeave={() => popup.setActiveId((id) => (id === c.id ? null : id))}
                     onFocus={() => popup.setActiveId(c.id)}
                     onBlur={() => popup.setActiveId((id) => (id === c.id ? null : id))}
-                    className={`${WALLET[c.style ?? ""] ?? "wallet-default"} group relative flex h-36 w-60 flex-col justify-between rounded-2xl p-4 text-wallet-foreground shadow-soft outline-none transition-transform hover:-translate-y-1 focus:ring-2 focus:ring-primary/40 ${hi ? "scale-[1.04] ring-4 ring-primary" : ""}`}>
+                    className={`${WALLET[c.style ?? ""] ?? "wallet-default"} group relative flex h-36 w-60 flex-col justify-between rounded-2xl p-4 text-wallet-foreground shadow-soft outline-none transition-transform hover:-translate-y-1 focus:ring-2 focus:ring-primary/40 ${hi ? "scale-[1.04] ring-4 ring-primary" : ""} ${glow ? "card-glow" : ""}`}>
                     <div className="flex items-start justify-between gap-2">
                       <div className="truncate text-base font-semibold">{c.bank}</div>
                       {hi ? <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium text-primary-foreground">Cel mai bun aici</span>

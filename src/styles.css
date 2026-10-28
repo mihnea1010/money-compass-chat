@@ -202,3 +202,13 @@
   background: linear-gradient(135deg, oklch(0.88 0.17 98), oklch(0.72 0.16 85));
   color: oklch(0.2 0.02 90);
 }
+
+@utility card-glow {
+  outline: 3px solid var(--success, oklch(0.72 0.19 150));
+  outline-offset: 3px;
+  box-shadow: 0 0 24px 6px color-mix(in oklch, var(--success, oklch(0.72 0.19 150)) 60%, transparent);
+  animation: card-glow-pulse 1.6s ease-in-out infinite;
+}
+@keyframes card-glow-pulse {
+  50% { box-shadow: 0 0 36px 12px color-mix(in oklch, var(--success, oklch(0.72 0.19 150)) 75%, transparent); }
+}
