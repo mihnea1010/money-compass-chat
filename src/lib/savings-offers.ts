@@ -1,19 +1,22 @@
 import { buildOptimizations } from "./optimizations";
 import { statistici, type Tranzactie } from "./statement";
 import { EMPTY_SETTINGS, type OptimizationSettings, type OptimizationRecord } from "./optimization-state";
+import { bankOfferStatus, type OfferStatus } from "./offer-integrity";
 
 export type SavingsOffer = {
   id: string; title: string; provider: string; category: "card" | "tax";
   annualRon: number; minutes: number; description: string; conditions: string;
   steps: string[]; url: string; action: string; calculable: boolean; reason?: string | undefined;
+  status: OfferStatus; statusExplanation: string;
 };
-/** Row shape of the bank_offers table (offers curated from official bank pages). */
+/** Catalog rows are unverified by default; legacy dates and URLs are not evidence. */
 export type BankOffer = {
   id: string; bank: string; product: string; title: string; summary: string; is_credit: boolean;
   rate_percent: number; merchant_pattern: string | null; merchant_rate_percent: number | null; categories: string[];
   monthly_cap_ron: number | null; annual_cap_ron: number | null; annual_fee_ron: number | null;
   valid_from: string | null; valid_until: string | null; effort_minutes: number; steps: string[];
   conditions: string; source_url: string; verified_on: string;
+  offer_status?: string; verification_evidence?: unknown;
 };
 
 export function rankOffers(offers: SavingsOffer[]) {
@@ -22,9 +25,13 @@ export function rankOffers(offers: SavingsOffer[]) {
 const bucharestDay = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Bucharest" }).format(d);
 
 export function estimateBankOffer(o: BankOffer, transactions: Tranzactie[], settings: OptimizationSettings) {
+  const rates = [o.rate_percent, o.merchant_rate_percent ?? 0];
+  const limits = [o.monthly_cap_ron, o.annual_cap_ron, o.annual_fee_ron];
+  if (rates.some((n) => !Number.isFinite(Number(n)) || Number(n) < 0 || Number(n) > 100) || limits.some((n) => n !== null && (!Number.isFinite(Number(n)) || Number(n) < 0))) return { calculable: false, annualRon: 0 };
   const months = statistici(transactions).nrLuni;
   const purchases = transactions.filter((t) => t.suma < 0 && o.categories.includes(t.categorie) && !/comision|ramburs|transfer|retragere|dob[aâ]nd/i.test(t.descriere));
-  const re = o.merchant_pattern ? new RegExp(o.merchant_pattern, "i") : null;
+  let re: RegExp | null = null;
+  try { re = o.merchant_pattern ? new RegExp(o.merchant_pattern, "i") : null; } catch { return { calculable: false, annualRon: 0 }; }
   const merchant = re ? -purchases.filter((t) => re.test(t.descriere)).reduce((s, t) => s + t.suma, 0) / months : 0;
   const other = -purchases.filter((t) => !re || !re.test(t.descriere)).reduce((s, t) => s + t.suma, 0) / months;
   let monthly = merchant * Number(o.merchant_rate_percent ?? 0) / 100 + other * Number(o.rate_percent) / 100;
@@ -36,16 +43,18 @@ export function estimateBankOffer(o: BankOffer, transactions: Tranzactie[], sett
   return { calculable, annualRon: calculable ? Math.max(0, Math.round(annual - (fee ?? 0))) : 0 };
 }
 
-export function buildSavingsOffers(transactions: Tranzactie[], settings: OptimizationSettings, today: Date, records: OptimizationRecord[] = [], bankOffers: BankOffer[] = []) {
+export function buildSavingsOffers(transactions: Tranzactie[], settings: OptimizationSettings, today: Date, records: OptimizationRecord[] = [], bankOffers: BankOffer[] = [], options: { demoScenario?: boolean } = {}) {
   const year = Number(new Intl.DateTimeFormat("en", { timeZone: "Europe/Bucharest", year: "numeric" }).format(today));
   const day = bucharestDay(today);
-  const offers: SavingsOffer[] = bankOffers.filter((o) => (!o.valid_until || o.valid_until >= day) && (!o.valid_from || o.valid_from <= day)).map((o) => {
-    const est = estimateBankOffer(o, transactions, settings);
+  const offers: SavingsOffer[] = bankOffers.map((o) => {
+    const integrity = bankOfferStatus(o, day);
+    const est = integrity.status === "verified" || (integrity.status === "demo" && options.demoScenario) ? estimateBankOffer(o, transactions, settings) : { calculable: false, annualRon: 0 };
     return { id: o.id, title: o.title, provider: `${o.bank} · ${o.product}`, category: "card", annualRon: est.annualRon, minutes: o.effort_minutes, calculable: est.calculable,
-      description: o.summary, steps: o.steps, url: o.source_url, action: `Deschide oferta ${o.bank.split(" (")[0]}`,
-      conditions: `${o.conditions} ${est.calculable ? "Estimare pe 12 luni din ritmul cheltuielilor tale." : o.is_credit ? "Pentru calcul: confirmă rambursarea integrală și costul anual în Date & eligibilitate." : ""} Verificat pe sursa oficială la ${o.verified_on}${o.valid_until ? `, valabil până la ${o.valid_until}` : ""}.`.trim() };
+      status: integrity.status, statusExplanation: integrity.explanation,
+      description: o.summary, steps: integrity.status === "verified" ? o.steps : [integrity.explanation, "Aucune activare sau economie reală nu este confirmată.".replace("Aucune", "Nicio")], url: integrity.status === "verified" ? o.source_url : "", action: `Vezi termenii ${o.bank.split(" (")[0]}`,
+      conditions: `${integrity.explanation} ${o.conditions} ${est.calculable ? integrity.status === "demo" ? "Calcul ipotetic pe date simulate; nu reprezintă economie personală." : "Estimare pe 12 luni, nu economie garantată." : "Nu includem această ofertă în economiile personale fără dovezi și eligibilitate confirmată."}`.trim() };
   });
-  for (const t of buildOptimizations(transactions, settings, today).filter((t) => !t.closed && t.impactKind === "estimate" && t.impactAmountRon > 0)) offers.push({ id: t.id, title: t.title, provider: "Beneficiu fiscal", category: "tax", annualRon: t.impactAmountRon, minutes: 10, description: t.contextExplanation, conditions: t.urgencyLabel, steps: ["Verifică eligibilitatea în sursa oficială.", "Confirmă documentele și suma cu salarizarea sau primăria.", "Aplică beneficiul și confirmă economia realizată."], url: t.sourceUrl, action: "Verifică beneficiul", calculable: true });
+  for (const t of buildOptimizations(transactions, settings, today).filter((t) => !t.closed && t.impactKind === "estimate" && t.impactAmountRon > 0)) offers.push({ id: t.id, title: t.title, provider: "Beneficiu fiscal", category: "tax", annualRon: t.impactAmountRon, minutes: 10, description: t.contextExplanation, conditions: t.urgencyLabel, steps: ["Verifică eligibilitatea în sursa oficială.", "Confirmă documentele și suma cu salarizarea sau primăria.", "Aplică beneficiul și confirmă economia realizată."], url: t.sourceUrl, action: "Verifică beneficiul", calculable: true, status: "unverified", statusExplanation: "Calcul orientativ din valori declarate; eligibilitatea fiscală nu este verificată." });
   return rankOffers(offers.filter((o) => !records.some((r) => r.id === o.id && r.year === year)));
 }
 
@@ -56,7 +65,7 @@ export function spendByCategory(transactions: Tranzactie[]) {
 /** Apply an AI-chosen order; unknown ids keep the deterministic order after the AI picks. */
 export function applyAiOrder(offers: SavingsOffer[], order: string[], reasons: Record<string, string> = {}) {
   const pos = (id: string) => { const i = order.indexOf(id); return i === -1 ? order.length : i; };
-  return [...offers].map((o, i) => ({ o: { ...o, reason: reasons[o.id] ?? o.reason }, i })).sort((a, b) => pos(a.o.id) - pos(b.o.id) || a.i - b.i).map((x) => x.o);
+  return [...offers].map((o, i) => ({ o: { ...o, reason: o.status === "verified" ? reasons[o.id] ?? o.reason : undefined }, i })).sort((a, b) => pos(a.o.id) - pos(b.o.id) || a.i - b.i).map((x) => x.o);
 }
 
 // Explicit illustrative scenario, never saved in Seif or shown as a personal result.
