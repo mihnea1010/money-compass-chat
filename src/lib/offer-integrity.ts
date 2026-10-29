@@ -16,7 +16,7 @@ export function validDay(value: unknown): value is string {
   return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
 }
 type EvidenceOffer = { id: string; bank: string; conditions: string; source_url: string; verified_on: string; offer_status?: string; verification_evidence?: unknown; product: string; valid_from: string | null; valid_until: string | null; annual_fee_ron: number | null };
-export function bankOfferStatus(o: EvidenceOffer, day: string): { status: OfferStatus; explanation: string } {
+export function bankOfferStatus<T extends EvidenceOffer>(o: T, day: string): { status: OfferStatus; explanation: string } {
   if (o.offer_status === "demo" || o.id.startsWith("demo-") || /demo|simulat|inventat/i.test(o.conditions)) return { status: "demo", explanation: "Date simulate — produsul, procentele și condițiile sunt fictive, nu o ofertă a băncii." };
   const unverified = (explanation: string) => ({ status: "unverified" as const, explanation });
   if (!officialOfferUrl(o.source_url, o.bank)) return unverified("Neconfirmată — lipsește o sursă oficială relevantă; pagina principală a băncii nu dovedește oferta.");
