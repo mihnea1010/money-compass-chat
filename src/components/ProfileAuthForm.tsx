@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import { authErrorMessage, isObfuscatedDuplicate } from "@/lib/auth-errors";
 
 export function ProfileAuthForm({ initialMode = "in" }: { initialMode?: "in" | "up" }) {
   const [mode, setMode] = useState(initialMode);
@@ -21,9 +22,14 @@ export function ProfileAuthForm({ initialMode = "in" }: { initialMode?: "in" | "
       } else {
         const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: `${window.location.origin}/onboarding` } });
         if (error) throw error;
+        if (isObfuscatedDuplicate(data.user)) { setError(authErrorMessage("up", { code: "user_already_exists" })); return; }
         if (!data.session) { setConfirmation(true); setPassword(""); }
       }
-    } catch { setError(mode === "in" ? "Nu am putut intra în cont. Verifică emailul și parola." : "Contul nu a putut fi creat. Verifică datele și încearcă din nou."); }
+    } catch (err) {
+      const e = err as { code?: string; status?: number; message?: string };
+      if (import.meta.env.DEV) console.warn("[auth]", mode, e?.status, e?.code);
+      setError(authErrorMessage(mode, e));
+    }
     finally { setBusy(false); }
   }
   async function google() {
