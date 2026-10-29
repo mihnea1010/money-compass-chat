@@ -8,6 +8,13 @@
       "when": 1793207874383,
       "tag": "0000_seed_demo_bank_offers",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793253631328,
+      "tag": "0001_bank_offer_provenance",
+      "breakpoints": true
     }
   ]
 }
