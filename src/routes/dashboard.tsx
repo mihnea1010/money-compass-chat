@@ -13,6 +13,7 @@ import { SoldConturi } from "@/components/SoldConturi";
 import { ConecteazaBanca } from "@/components/ConecteazaBanca";
 import { parseStatementText, pdfToText, toCSV } from "@/lib/pdfStatement";
 import { MyCards } from "@/components/MyCards";
+import { DemoStoreNotifier } from "@/components/DemoStoreNotifier";
 import { EMPTY_SETTINGS, loadOptimizationState, saveOptimizationState, type OptimizationState } from "@/lib/optimization-state";
 
 export const Route = createFileRoute("/dashboard")({
@@ -205,6 +206,7 @@ function Dashboard() {
 
         <Abonamente tranz={tranz} />
 
+        <DemoStoreNotifier />
 
         <div className="flex justify-center"><Button variant="ghost" onClick={reset}><FileUp className="size-4" /> Încarcă alt extras</Button></div>
       </div>
