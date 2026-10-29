@@ -35,7 +35,7 @@ export function useStorePresence(cards: MyCard[], enabled: boolean) {
       presence = next;
       if (fire && s) {
         const best = bestCardForStore(cardsRef.current, s.name);
-        notify(`Faci cumpărături la ${s.name}?`, best ? `Nu uita să folosești ${best.card.bank} pentru cashback-ul de ${best.perk.percent}%.` : "Verifică ce card îți aduce cel mai mult aici.");
+        notify(`Faci cumpărături la ${s.name}?`, best ? "Verifică termenii cardului; cashback-ul nu este confirmat." : "Beneficiile disponibile sunt simulate sau neconfirmate. Verifică termenii la bancă.");
       }
     };
     const onPos = async (p: Pos) => {

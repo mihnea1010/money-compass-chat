@@ -2,8 +2,8 @@
 import { toast } from "sonner";
 export const HIGHLIGHT_KEY = "bestsaves.highlightCard";
 export const SIM_DELAY_MS = 7000;
-export const SIM_TITLE = "💰 Ești la Carrefour?";
-export const SIM_BODY = "Nu uita să folosești cardul BT pentru 5% cashback 💸";
+export const SIM_TITLE = "💰 DEMO · Ești la Carrefour?";
+export const SIM_BODY = "Simulare: cardul BT cu 5% cashback fictiv, nu o ofertă reală 💸";
 
 export function simulateCarrefour(open: () => void) {
   if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();

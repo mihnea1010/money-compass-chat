@@ -15,7 +15,7 @@ export function officialOfferUrl(value: string, bank: string) {
 export function validDay(value: unknown): value is string {
   return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
 }
-type EvidenceOffer = { id: string; bank: string; conditions: string; source_url: string; verified_on: string; offer_status?: string; verification_evidence?: unknown; [key: string]: unknown };
+type EvidenceOffer = { id: string; bank: string; conditions: string; source_url: string; verified_on: string; offer_status?: string; verification_evidence?: unknown; product: string; valid_from: string | null; valid_until: string | null; annual_fee_ron: number | null };
 export function bankOfferStatus(o: EvidenceOffer, day: string): { status: OfferStatus; explanation: string } {
   if (o.offer_status === "demo" || o.id.startsWith("demo-") || /demo|simulat|inventat/i.test(o.conditions)) return { status: "demo", explanation: "Date simulate — produsul, procentele și condițiile sunt fictive, nu o ofertă a băncii." };
   const unverified = (explanation: string) => ({ status: "unverified" as const, explanation });
@@ -32,7 +32,7 @@ export function bankOfferStatus(o: EvidenceOffer, day: string): { status: OfferS
     const item = records[term];
     if (!item || typeof item !== "object" || Array.isArray(item)) return unverified("Neconfirmată — lipsesc dovezi oficiale pentru produs, procente, condiții, limite, costuri sau valabilitate.");
     const entry = item as Record<string, unknown>;
-    if (typeof entry.url !== "string" || !officialOfferUrl(entry.url, o.bank) || typeof entry.excerpt !== "string" || !entry.excerpt.trim() || JSON.stringify(entry.value) !== JSON.stringify(o[term])) return unverified("Neconfirmată — dovezile lipsesc sau nu corespund termenilor afișați.");
+    if (typeof entry.url !== "string" || !officialOfferUrl(entry.url, o.bank) || typeof entry.excerpt !== "string" || !entry.excerpt.trim() || JSON.stringify(entry.value) !== JSON.stringify((o as unknown as Record<string, unknown>)[term])) return unverified("Neconfirmată — dovezile lipsesc sau nu corespund termenilor afișați.");
   }
   return { status: "verified", explanation: `Verificată cu dovezi pentru termenii specifici la ${o.verified_on}. Valabilitate: ${o.valid_from} – ${o.valid_until}.` };
 }

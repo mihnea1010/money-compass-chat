@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { AddCardDialog } from "@/components/AddCardDialog";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
-import { bestCardForStore, type MyCard } from "@/lib/my-cards";
+import { bestCardForStore, displayPerkStatus, type MyCard } from "@/lib/my-cards";
 import { useStorePresence } from "@/hooks/use-store-presence";
 import { bootstrapCards, useStore } from "@/store/useStore";
 import { HIGHLIGHT_KEY } from "@/lib/simulate-store";
@@ -80,7 +80,7 @@ export function MyCards() {
           <h2 className="font-medium">Cardurile mele</h2>
           <p className="mt-1 text-xs text-muted-foreground">
             {store ? <span className="inline-flex items-center gap-1 font-medium text-primary"><MapPin className="size-3" /> Ești la {store.name}{best ? ` — folosește ${best.card.bank} (${best.perk.percent}%)` : ""}</span>
-              : "Pune mouse-ul sau degetul pe un card ca să vezi ce economisești cu el."}
+              : "Beneficii simulate sau neconfirmate — nu recomandări de cashback real."}
           </p>
           {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
         </div>
@@ -132,13 +132,13 @@ export function MyCards() {
         <div role="tooltip"
           className={`pointer-events-none fixed z-[70] w-56 rounded-xl border bg-popover p-3 text-popover-foreground shadow-xl ${popup.box.below ? "" : "-translate-y-full"}`}
           style={{ top: popup.box.top, left: popup.box.left }}>
-          <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-primary">Top 3 oportunități de salvare</div>
+          <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-primary">Top 3 beneficii · de verificat</div>
           {active.perks.length === 0 ? <p className="text-xs text-muted-foreground">Nicio ofertă adăugată</p> : (
             <ol className="space-y-1.5">
               {[...active.perks].sort((a, b) => b.percent - a.percent).slice(0, 3).map((p, i) => (
                 <li key={p.merchant} className="flex items-center gap-2 text-xs">
                   <span className="grid size-5 place-items-center rounded-full bg-primary/15 text-[10px] font-semibold text-primary">{i + 1}</span>
-                  <span className="flex-1 truncate">{p.merchant}</span>
+                  <span className="min-w-0 flex-1"><span className="block truncate">{p.merchant}</span><span className="block text-[10px] text-muted-foreground">{displayPerkStatus(active, p) === "demo" ? "DEMO · date simulate" : "Neconfirmat · fără dovezi"}</span></span>
                   <span className="rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">{p.percent}%</span>
                 </li>
               ))}

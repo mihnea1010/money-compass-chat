@@ -67,7 +67,7 @@ export function SavingsGraphic({ className = "" }: { className?: string }) {
   return (
     <div ref={root} aria-hidden="true" onClick={burst} className={`fx-field select-none [perspective:900px] ${className}`}>
       <svg className="absolute inset-0 size-full opacity-25" style={par(0.15)} viewBox="0 0 100 100" preserveAspectRatio="none">
-        {EDGES.map(([a, b]) => { const p = NODES[a]!, q = NODES[b]!; return <line key={`${a}-${b}`} x1={p[0]} y1={p[1]} x2={q[0]} y2={q[1]} stroke="var(--primary)" strokeWidth="0.25" />; })}
+        {EDGES.map(([a, b]) => { const p = NODES[a], q = NODES[b]; if (!p || !q) return null; return <line key={`${a}-${b}`} x1={p[0]} y1={p[1]} x2={q[0]} y2={q[1]} stroke="var(--primary)" strokeWidth="0.25" />; })}
         {NODES.map(([x, y]) => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.9" fill="var(--savings)" />)}
       </svg>
       <div className="fx-glow absolute left-1/2 top-1/2 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full" />
@@ -92,7 +92,7 @@ export function SavingsGraphic({ className = "" }: { className?: string }) {
                 <div className="h-1.5 w-1/2 rounded-full bg-foreground/25" />
               </div>
             </div>
-            <div className="pointer-events-none absolute -right-3 -top-3 scale-75 rounded-full bg-savings px-2.5 py-1 text-xs font-semibold text-background opacity-0 shadow-lg transition-all duration-300 group-hover:scale-100 group-hover:opacity-100">+12% cashback</div>
+            <div className="pointer-events-none absolute -right-3 -top-3 scale-75 rounded-full bg-savings px-2.5 py-1 text-xs font-semibold text-background opacity-0 shadow-lg transition-all duration-300 group-hover:scale-100 group-hover:opacity-100">Cashback · demo</div>
           </div>
         </div>
       </div>
