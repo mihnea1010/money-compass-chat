@@ -16,14 +16,18 @@ describe("store presence", () => {
 });
 
 describe("cards", () => {
-  it("picks Raiffeisen 5% at Carrefour", () => {
+  it("picks simulated Raiffeisen 5% only in explicit demo mode", () => {
     const other: MyCard = { id: "x", bank: "ING", name: "c", perks: [{ merchant: "Carrefour", percent: 2 }] };
-    const best = bestCardForStore([other, RAIFFEISEN_PRESET], "Carrefour Market");
+    const best = bestCardForStore([other, RAIFFEISEN_PRESET], "Carrefour Market", { demo: true });
     expect(best?.card.bank).toBe("Raiffeisen");
     expect(best?.perk.percent).toBe(5);
   });
+  it("never recommends demo or user-entered perks as real cashback", () => {
+    expect(bestCardForStore([RAIFFEISEN_PRESET], "Carrefour")).toBeNull();
+    expect(bestCardForStore([{ id: "x", bank: "ING", name: "c", perks: [{ merchant: "Carrefour", percent: 99 }] }], "Carrefour")).toBeNull();
+  });
   it("summarizes extra merchants", () => {
     const c: MyCard = { id: "r", bank: "R", name: "c", perks: ["Auchan", "Carrefour", "A", "B", "C", "D"].map((merchant) => ({ merchant, percent: 5 })) };
-    expect(perkSummary(c)).toBe("Cashback Auchan, Carrefour și încă 4");
+    expect(perkSummary(c)).toBe("Beneficii neconfirmate · Auchan, Carrefour și încă 4");
   });
 });

@@ -38,5 +38,5 @@ export function cardMetadata(input: CardInput, id: string): MyCard {
   const bank = data.bank;
   const normalized = bank.toLowerCase();
   const style = normalized.includes("transilvania") || normalized === "bt" ? "bt" : normalized.includes("raiffeisen") ? "raiffeisen" : normalized.includes("ing") ? "ing" : normalized.includes("bcr") ? "bcr" : undefined;
-  return { id, bank, name: `Card ${network ?? ""}`.trim(), ...(network ? { network } : {}), ...(style ? { style } : {}), last4: data.last4, perks: data.merchants.split(",").map((m) => m.trim()).filter(Boolean).map((merchant) => ({ merchant, percent: data.percent })) };
+  return { id, bank, name: `Card ${network ?? ""}`.trim(), ...(network ? { network } : {}), ...(style ? { style } : {}), last4: data.last4, perks: data.merchants.split(",").map((m) => m.trim()).filter(Boolean).map((merchant) => ({ merchant, percent: data.percent, status: "unverified" as const })) };
 }

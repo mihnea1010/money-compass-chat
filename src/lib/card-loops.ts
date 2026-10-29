@@ -7,11 +7,10 @@ export const CARD_SOURCES = {
   flying: "https://intreb.bancatransilvania.ro/en/cum-primesc-mile-la-cumparaturi-cu-cardul-de-credit-bt-flying-blue/",
   pago: "https://www.pago.ro/plateste-factura/bt-direct",
 };
-export const VERIFIED_CARD_CONTEXT = `Surse oficiale consultate la 28.10.2026:
-BCR George 3.0 Platinum: minimum 10.000 RON încasări eligibile/lună pentru scutirea comisionului de administrare de 50 RON/lună. Nu este rulaj de cumpărături. Transferurile între conturile proprii BCR sunt excluse. Nu presupune eligibilitatea fondurilor reciclate. Priority Pass: 10 intrări/an împărțite cu invitații, NU nelimitat. Lounge Visa intern: 6 intrări/an și 7.500 RON cumpărături în ultimele 30 zile, separat de condiția de încasări. Sursa ${CARD_SOURCES.bcr} și ${CARD_SOURCES.exclusions}.
-BT Direct de la Carrefour: 5% cashback la Carrefour, 2% la alți comercianți, doar cumpărături eligibile plătite integral; până la 55 zile grație dacă rambursezi integral. Nu extrapola la orice card BT Direct. Sursa ${CARD_SOURCES.direct}.
-Flying Blue: la cumpărături eligibile în România, Classic 1 milă/5 RON, Premium 1,3 mile/5 RON; nu confunda variantele. Sursa ${CARD_SOURCES.flying}.
-Pago permite plata BT Direct prin scanarea codului de bare (${CARD_SOURCES.pago}), dar acordarea milelor Flying Blue pentru rambursarea acestei datorii NU este verificată. Nu recomanda double-dipping sau stiva ca profit garantat. Nu afirma 220 RON, 540/650 mile sau lounge activ fără dovadă. Rambursare integrală la scadența extrasului; dobânzile și comisioanele pot depăși recompensele.`;
+export const CARD_CONTEXT = `Nu există în acest proiect dovezi arhivate care să confirme termenii actuali ai ofertelor bancare.
+Procentele din cardurile demo (inclusiv Raiffeisen și BT 5%) sunt simulate. Nu le recomanda ca oferte reale.
+Linkurile de referință ${Object.values(CARD_SOURCES).join(", ")} nu constituie singure verificare. Cere confirmarea produsului, procentelor, condițiilor, limitelor, comisioanelor și valabilității la bancă.
+Nu afirma praguri de încasări, costuri, număr de intrări lounge, perioade de grație sau rate de mile fără dovezi specifice. Nu recomanda double-dipping sau rotirea fondurilor. Soldul și scadența declarate nu confirmă beneficii.`;
 
 export interface CardPerkLoop {
   id: string;
@@ -33,18 +32,12 @@ export function cardAlerts(settings: OptimizationSettings, today: Date): Churnin
   const year = Number(dateParts.find((p) => p.type === "year")?.value);
   const month = Number(dateParts.find((p) => p.type === "month")?.value);
   const day = Number(dateParts.find((p) => p.type === "day")?.value);
-  if (settings.cards.includes("bcr") && eligibleVolumeGap(settings.bcrEligibleVolume) > 0) result.push({
-    id: `bcr-${year}-${month}`, type: "volume_threshold", cardName: "BCR George Platinum",
-    title: `Îți lipsesc ${eligibleVolumeGap(settings.bcrEligibleVolume).toLocaleString("ro-RO")} RON încasări eligibile`,
-    description: "Pragul de 10.000 RON/lună poate evita comisionul de 50 RON. Transferurile între conturile proprii BCR nu contează; confirmă celelalte încasări în George.",
-    daysRemaining: new Date(Date.UTC(year, month, 0)).getUTCDate() - day, actionButtonLabel: "Verifică în George", actionPayload: { targetUrl: "https://george.bcr.ro/" },
-  });
   if ((settings.cards.includes("direct") || settings.cards.includes("flying")) && settings.creditDueRon > 0 && /^\d{4}-\d{2}-\d{2}$/.test(settings.creditDueDate)) {
     const days = Math.ceil((Date.parse(`${settings.creditDueDate}T00:00:00Z`) - Date.UTC(year, month - 1, day)) / 86400000);
     result.push({ id: `credit-${settings.creditDueDate}`, type: "perk_expiry", cardName: "Card de credit",
       title: days < 0 ? "Scadența introdusă a trecut" : `Rambursează integral până la ${settings.creditDueDate}`,
-      description: `Sold declarat: ${settings.creditDueRon.toLocaleString("ro-RO")} RON. Verifică extrasul și evită dobânzile; plata prin Pago nu garantează mile Flying Blue.`,
-      daysRemaining: days, actionButtonLabel: settings.cards.includes("direct") ? "Vezi plata BT Direct în Pago" : "Vezi condițiile BT", actionPayload: { targetUrl: settings.cards.includes("direct") ? CARD_SOURCES.pago : CARD_SOURCES.flying },
+      description: `Sold declarat: ${settings.creditDueRon.toLocaleString("ro-RO")} RON. Verifică extrasul și evită dobânzile. Beneficiile și metodele de plată din catalog nu sunt confirmate.`,
+      daysRemaining: days, actionButtonLabel: settings.cards.includes("direct") ? "Verifică referința de plată" : "Verifică referința BT", actionPayload: { targetUrl: settings.cards.includes("direct") ? CARD_SOURCES.pago : CARD_SOURCES.flying },
     });
   }
   return result;

@@ -29,6 +29,7 @@ export type Database = {
           merchant_pattern: string | null
           merchant_rate_percent: number | null
           monthly_cap_ron: number | null
+          offer_status: string
           product: string
           rate_percent: number
           source_url: string
@@ -37,6 +38,7 @@ export type Database = {
           title: string
           valid_from: string | null
           valid_until: string | null
+          verification_evidence: Json
           verified_on: string
         }
         Insert: {
@@ -53,6 +55,7 @@ export type Database = {
           merchant_pattern?: string | null
           merchant_rate_percent?: number | null
           monthly_cap_ron?: number | null
+          offer_status?: string
           product: string
           rate_percent?: number
           source_url: string
@@ -61,6 +64,7 @@ export type Database = {
           title: string
           valid_from?: string | null
           valid_until?: string | null
+          verification_evidence?: Json
           verified_on?: string
         }
         Update: {
@@ -77,6 +81,7 @@ export type Database = {
           merchant_pattern?: string | null
           merchant_rate_percent?: number | null
           monthly_cap_ron?: number | null
+          offer_status?: string
           product?: string
           rate_percent?: number
           source_url?: string
@@ -85,6 +90,7 @@ export type Database = {
           title?: string
           valid_from?: string | null
           valid_until?: string | null
+          verification_evidence?: Json
           verified_on?: string
         }
         Relationships: []
