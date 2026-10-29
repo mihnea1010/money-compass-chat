@@ -17,6 +17,17 @@ describe("Savings offer rules", () => {
   it("caps campaign cashback at its annual cap", () => {
     expect(buildSavingsOffers(EXAMPLE_TRANSACTIONS, EXAMPLE_SETTINGS, date, [], [MC], { demoScenario: true }).find((o) => o.id === "mc")?.annualRon).toBe(50);
   });
+  it("computes a simulated demo amount against a loaded statement via demoCashback", () => {
+    const debit: BankOffer = { ...base, id: "d", is_credit: false, rate_percent: 0, merchant_pattern: "carrefour", merchant_rate_percent: 5, categories: ["mancare", "shopping"], annual_fee_ron: 0 };
+    // 2000 lei/month at Carrefour * 5% * 12 = 1200, keeping status demo.
+    const out = buildSavingsOffers(EXAMPLE_TRANSACTIONS, EXAMPLE_SETTINGS, date, [], [debit], { demoCashback: true }).find((o) => o.id === "d");
+    expect(out?.annualRon).toBe(1200);
+    expect(out?.status).toBe("demo");
+  });
+  it("gives no demo estimate without demoScenario or demoCashback", () => {
+    const debit: BankOffer = { ...base, id: "d2", is_credit: false, rate_percent: 0, merchant_pattern: "carrefour", merchant_rate_percent: 5, categories: ["mancare"], annual_fee_ron: 0 };
+    expect(buildSavingsOffers(EXAMPLE_TRANSACTIONS, EXAMPLE_SETTINGS, date, [], [debit], {}).find((o) => o.id === "d2")?.annualRon).toBe(0);
+  });
   it("keeps expired demo inspectable but gives no estimate", () => {
     expect(buildSavingsOffers(EXAMPLE_TRANSACTIONS, EXAMPLE_SETTINGS, new Date("2026-12-30T12:00:00Z"), [], [MC], { demoScenario: true }).find((o) => o.id === "mc")?.annualRon).toBe(0);
   });

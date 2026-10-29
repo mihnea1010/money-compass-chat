@@ -30,6 +30,8 @@ export function useSavings() {
   }, []);
   const bank = useBankOffers();
   const example = transactions.length === 0;
-  const offers = useMemo(() => buildSavingsOffers(example ? EXAMPLE_TRANSACTIONS : transactions, example ? EXAMPLE_SETTINGS : state.settings, today, example ? [] : state.records, bank.data ?? [], { demoScenario: example }), [example, transactions, state, today, bank.data]);
+  // With a loaded statement, demo offers still compute a clearly-labelled
+  // simulated amount (demoCashback) so the Economisește total is never a bare 0.
+  const offers = useMemo(() => buildSavingsOffers(example ? EXAMPLE_TRANSACTIONS : transactions, example ? EXAMPLE_SETTINGS : state.settings, today, example ? [] : state.records, bank.data ?? [], { demoScenario: example, demoCashback: !example }), [example, transactions, state, today, bank.data]);
   return { transactions, stopped, state, setState, today, example, offers, bankLoading: bank.isLoading, bankError: bank.isError };
 }

@@ -43,13 +43,17 @@ export function estimateBankOffer(o: BankOffer, transactions: Tranzactie[], sett
   return { calculable, annualRon: calculable ? Math.max(0, Math.round(annual - (fee ?? 0))) : 0 };
 }
 
-export function buildSavingsOffers(transactions: Tranzactie[], settings: OptimizationSettings, today: Date, records: OptimizationRecord[] = [], bankOffers: BankOffer[] = [], options: { demoScenario?: boolean } = {}) {
+export function buildSavingsOffers(transactions: Tranzactie[], settings: OptimizationSettings, today: Date, records: OptimizationRecord[] = [], bankOffers: BankOffer[] = [], options: { demoScenario?: boolean; demoCashback?: boolean } = {}) {
   const year = Number(new Intl.DateTimeFormat("en", { timeZone: "Europe/Bucharest", year: "numeric" }).format(today));
   const day = bucharestDay(today);
+  // Demo offers show a simulated amount either in the illustrative zero-statement
+  // scenario (demoScenario) or against a loaded demo statement (demoCashback). In
+  // both cases the status stays "demo" and the UI keeps the simulated labels.
+  const demoEstimates = Boolean(options.demoScenario || options.demoCashback);
   const offers: SavingsOffer[] = bankOffers.map((o) => {
     const integrity = bankOfferStatus(o, day);
     const validPeriod = (!o.valid_from || (validDay(o.valid_from) && o.valid_from <= day)) && (!o.valid_until || (validDay(o.valid_until) && o.valid_until >= day)) && (!o.valid_from || !o.valid_until || o.valid_from <= o.valid_until);
-    const est = validPeriod && (integrity.status === "verified" || (integrity.status === "demo" && options.demoScenario)) ? estimateBankOffer(o, transactions, settings) : { calculable: false, annualRon: 0 };
+    const est = validPeriod && (integrity.status === "verified" || (integrity.status === "demo" && demoEstimates)) ? estimateBankOffer(o, transactions, settings) : { calculable: false, annualRon: 0 };
     return { id: o.id, title: o.title, provider: `${o.bank} · ${o.product}`, category: "card", annualRon: est.annualRon, minutes: o.effort_minutes, calculable: est.calculable,
       status: integrity.status, statusExplanation: integrity.explanation,
       description: o.summary, steps: integrity.status === "verified" ? o.steps : [integrity.explanation, "Nicio activare sau economie reală nu este confirmată."], url: integrity.status === "verified" ? o.source_url : "", action: `Vezi termenii ${o.bank.split(" (")[0]}`,

@@ -15,6 +15,13 @@
       "when": 1793253631328,
       "tag": "0001_bank_offer_provenance",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793300000000,
+      "tag": "0002_seed_demo_cashback_offers",
+      "breakpoints": true
     }
   ]
 }
