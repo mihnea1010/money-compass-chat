@@ -12,6 +12,9 @@ describe("authErrorMessage", () => {
   it("explains invalid email", () => {
     expect(authErrorMessage("up", { code: "email_address_invalid" })).toMatch(/nu pare validă/);
   });
+  it("explains undeliverable addresses", () => {
+    expect(authErrorMessage("up", { code: "unknown", status: 400, message: "This email address is not allowed." })).toMatch(/nu se pot trimite/);
+  });
   it("explains unconfirmed email on sign-in", () => {
     expect(authErrorMessage("in", { code: "email_not_confirmed" })).toMatch(/Confirmă/);
   });

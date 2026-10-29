@@ -12,6 +12,8 @@ const SIGNUP: Record<string, string> = {
   email_provider_disabled: "Înregistrarea cu email este oprită momentan. Folosește „Continuă cu Google”.",
 };
 
+const UNDELIVERABLE = "La această adresă nu se pot trimite emailuri (domeniu greșit sau adresă inexistentă). Verifică emailul sau folosește altul.";
+
 const SIGNIN: Record<string, string> = {
   invalid_credentials: "Email sau parolă greșite.",
   email_not_confirmed: "Confirmă mai întâi contul din emailul primit, apoi intră.",
@@ -25,6 +27,7 @@ export function authErrorMessage(mode: "in" | "up", error: AuthErrorLike): strin
   const table = mode === "up" ? SIGNUP : SIGNIN;
   if (table[code]) return table[code];
   if (mode === "up" && /weak|pwned|easy to guess/i.test(error?.message ?? "")) return SIGNUP.weak_password;
+  if (mode === "up" && /not allowed|could not be delivered|cannot receive email/i.test(error?.message ?? "")) return UNDELIVERABLE;
   if (error?.status === 429) return SIGNUP.over_request_rate_limit;
   return mode === "in"
     ? "Nu am putut intra în cont. Verifică emailul și parola."
