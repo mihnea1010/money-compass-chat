@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { demoCardDetails, type CardNetwork } from "@/lib/card-demo";
-import type { MyCard } from "@/lib/my-cards";
+import { displayPerkStatus, type MyCard } from "@/lib/my-cards";
 
 export function CardDetailDialog({ card, onClose }: { card: MyCard; onClose: () => void }) {
   const [password, setPassword] = useState("");
@@ -21,7 +21,7 @@ export function CardDetailDialog({ card, onClose }: { card: MyCard; onClose: () 
       <p className="text-xs text-muted-foreground">Orice parolă dezvăluie doar date fictive. Nu folosi parola contului tău.</p>
       {password && <Button variant="outline" onClick={() => setPassword("")}><EyeOff />Ascunde datele</Button>}
       {!password && <div className="flex items-center gap-2 text-xs text-muted-foreground"><LockKeyhole className="size-3.5" />Date mascate</div>}
-      <div className="space-y-2"><h3 className="text-sm font-medium">Beneficii</h3>{card.perks.length ? card.perks.map((p) => <div key={p.merchant} className="flex justify-between gap-4 text-sm"><span>{p.merchant}</span><span className="shrink-0 text-success-foreground">{p.percent}%</span></div>) : <p className="text-sm text-muted-foreground">Nicio ofertă adăugată</p>}</div>
+      <div className="space-y-2"><h3 className="text-sm font-medium">Beneficii</h3>{card.perks.length ? card.perks.map((p) => <div key={p.merchant} className="flex justify-between gap-4 text-sm"><span>{p.merchant}<span className="block text-xs text-muted-foreground">{displayPerkStatus(card, p) === "demo" ? "DEMO · date simulate" : "Neconfirmat · fără dovezi"}</span></span><span className="shrink-0 text-success-foreground">{p.percent}%</span></div>) : <p className="text-sm text-muted-foreground">Nicio ofertă adăugată</p>}</div>
     </DialogContent>
   </Dialog>;
 }

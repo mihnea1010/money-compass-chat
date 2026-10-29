@@ -7,7 +7,7 @@ export const FISCAL_SOURCES = {
   deadline: "https://static.anaf.ro/static/3/Ploiesti/20260522134205_comunicat_termen_declaratia_230%20an%202026.pdf",
   tax: "https://www.ghiseul.ro/ghiseul/public/",
 };
-export const VERIFIED_FISCAL_CONTEXT = `Reguli oficiale consultate la 28.10.2026 (${FISCAL_SOURCES.code}): bonificație de până la 10% stabilită de consiliul competent pentru plata anticipată integrală a impozitului anual pe clădiri/teren până la 31 martie. Nu garanta 10% și nu aplica o campanie Mastercard de 2% inventată. Termenul 2026 este închis în octombrie; 2027 necesită confirmare.
+export const VERIFIED_FISCAL_CONTEXT = `Reguli fiscale de reconfirmat, fără dată de verificare documentată (${FISCAL_SOURCES.code}): bonificație de până la 10% stabilită de consiliul competent pentru plata anticipată integrală a impozitului anual pe clădiri/teren până la 31 martie. Nu garanta 10% și nu aplica o campanie Mastercard de 2% inventată. Termenul 2026 este închis în octombrie; 2027 necesită confirmare.
 Art.78: contribuțiile proprii eligibile la pensie facultativă, la funcția de bază, se deduc din baza salarială în limita echivalentului a 400 EUR/an. Reducerea impozitului de 10% ar fi cel mult echivalentul a 40 EUR, nu rambursare400 EUR; depinde de contribuții deja deduse, bază și salarizare. Nu promite bani automat.
 Form230 redirecționează până la 3,5% din impozitul pe venituri salariale eligibile către beneficiar, nu este economie personală. Termen pentru veniturile2025: 25.05.2026 inclusiv, închis (${FISCAL_SOURCES.deadline}). Generarea formularului (${FISCAL_SOURCES.form}) nu este depunere. Nu inventa suma380RON fără impozit eligibil cunoscut.`;
 
@@ -22,7 +22,7 @@ export type OptimizationTrigger = {
 };
 export function buildOptimizations(transactions: Tranzactie[], settings: OptimizationSettings, today: Date): OptimizationTrigger[] {
   const year = Number(new Intl.DateTimeFormat("en", { timeZone: "Europe/Bucharest", year: "numeric" }).format(today));
-  // Do not roll verified 2026 campaigns into an unverified future year.
+  // Do not roll 2026 campaigns into an unverified future year.
   const closedTax = year !== 2026 || deadlinePassed(today, 3, 31);
   const closedForm = year !== 2026 || deadlinePassed(today, 5, 25);
   const triggers: OptimizationTrigger[] = [

@@ -32,7 +32,7 @@ export function bankOfferStatus(o: EvidenceOffer, day: string): { status: OfferS
     const item = records[term];
     if (!item || typeof item !== "object" || Array.isArray(item)) return unverified("Neconfirmată — lipsesc dovezi oficiale pentru produs, procente, condiții, limite, costuri sau valabilitate.");
     const entry = item as Record<string, unknown>;
-    if (typeof entry.url !== "string" || !officialOfferUrl(entry.url, o.bank) || typeof entry.excerpt !== "string" || !entry.excerpt.trim() || JSON.stringify(entry.value) !== JSON.stringify((o as unknown as Record<string, unknown>)[term])) return unverified("Neconfirmată — dovezile lipsesc sau nu corespund termenilor afișați.");
+    if (typeof entry['url'] !== "string" || !officialOfferUrl(entry['url'], o.bank) || typeof entry['excerpt'] !== "string" || !entry['excerpt'].trim() || JSON.stringify(entry['value']) !== JSON.stringify((o as unknown as Record<string, unknown>)[term])) return unverified("Neconfirmată — dovezile lipsesc sau nu corespund termenilor afișați.");
   }
   return { status: "verified", explanation: `Verificată cu dovezi pentru termenii specifici la ${o.verified_on}. Valabilitate: ${o.valid_from} – ${o.valid_until}.` };
 }

@@ -1,6 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
-import { VERIFIED_CARD_CONTEXT } from "../card-loops";
+import { CARD_CONTEXT } from "../card-loops";
 import { VERIFIED_FISCAL_CONTEXT } from "../optimizations";
 import {
   createLovableAiGatewayRunIdFetch,
@@ -14,8 +14,8 @@ const SYSTEM = `Ești BestSaves Copilot — un consilier financiar personal pent
 Răspunzi mereu în limba română, clar, prietenos și concis, folosind markdown (liste, bold, tabele scurte).
 Domenii: buget personal (regula 50/30/20, metoda plicurilor), economisire (fond de urgență, obiective pe termen lung), scăderea abonamentelor și cheltuielilor recurente, iesirea din datorii (metoda bulgărelui de zăpadă), noțiuni de bază despre investiții pentru începători (dobândă compusă, ETF-uri, diversificare), economii pentru pensie în termeni simpli.
 Reguli:
-- Poți explica beneficiile fiscale verificate de mai jos, fără a te prezenta ca expert contabil. Nu inventa cote, eligibilitate sau termene; recomandă confirmarea cu primăria/salarizarea/specialistul pentru situația concretă. Nu efectuezi plăți, depuneri sau facturare.
-- Pentru recompense de carduri folosește doar condițiile oficiale de mai jos. Nu oferi schema double-dipping ca fapt verificat; explică exact ce e confirmat și ce nu. Nu recomanda rotirea artificială a fondurilor. Avertizează despre dobânzi și rambursarea integrală la scadența reală.
+- Poți explica regulile fiscale de reconfirmat de mai jos, fără a te prezenta ca expert contabil. Nu inventa cote, eligibilitate sau termene; recomandă confirmarea cu primăria/salarizarea/specialistul pentru situația concretă. Nu efectuezi plăți, depuneri sau facturare.
+- Pentru recompense de carduri nu trata referințele de mai jos ca dovezi; declară lipsa verificării pentru termenii specifici. Nu oferi schema double-dipping ca fapt verificat; explică exact ce e confirmat și ce nu. Nu recomanda rotirea artificială a fondurilor. Avertizează despre dobânzi și rambursarea integrală la scadența reală.
 - Când dai cifre, menționează ipotezele și că diferențele individuale contează; pentru decizii mari (investiții, împrumuturi) recomandă consultarea unui specialist autorizat.
 - Nu cere și nu folosi date bancare personale (IBAN, nume). Dacă utilizatorul trimite un sumar anonimizat din Seif, lucrează doar cu sumele totale.
 - La final, propune 1-3 pași concreți următori.`;
@@ -28,7 +28,7 @@ export async function handleChat(request: Request) {
   let profil = "";
   try {
     const body = (await request.json()) as { messages?: UIMessage[]; profil?: unknown; seif?: unknown; optimizations?: unknown };
-    profil += `\n\n${VERIFIED_CARD_CONTEXT}\n${VERIFIED_FISCAL_CONTEXT}\nData curentă UTC: ${new Date().toISOString()}. Reconfirmă termenii dacă anul curent nu este 2026; nu reactiva campanii expirate.`;
+    profil += `\n\n${CARD_CONTEXT}\n${VERIFIED_FISCAL_CONTEXT}\nData curentă UTC: ${new Date().toISOString()}. Reconfirmă termenii dacă anul curent nu este 2026; nu reactiva campanii expirate.`;
     if (body.optimizations && typeof body.optimizations === "object") {
       profil += `\n\nOptimizări din browser (date DECLARATE de utilizator, nu confirmate de bancă; estimările nu sunt economii realizate): ${JSON.stringify(body.optimizations).slice(0, 10000)}`;
     }
