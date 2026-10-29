@@ -74,7 +74,7 @@ export function MyCards() {
   const active = popup.activeId ? cards.find((c) => c.id === popup.activeId) : undefined;
 
   return (
-    <section className="space-y-3 border-y py-4">
+    <section id="cardurile-mele" className="scroll-mt-20 space-y-3 border-y py-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-medium">Cardurile mele</h2>

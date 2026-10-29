@@ -7,18 +7,27 @@ export const SIM_DELAY_MS = 7000;
 export const SIM_TITLE = "💰 DEMO · Ești la Carrefour?";
 export const SIM_BODY = "Simulare: cardul BT cu 5% cashback fictiv, nu o ofertă reală 💸";
 
+/** Ancora secțiunii „Cardurile mele” din Seiful meu, pentru derulare la card. */
+export const MY_CARDS_ANCHOR = "cardurile-mele";
+
+/** Marchează cardul, anunță MyCards și derulează la secțiunea cardurilor. */
+export function openHighlightedCard(cardId: string, open?: () => void) {
+  sessionStorage.setItem(HIGHLIGHT_KEY, cardId);
+  window.dispatchEvent(new Event("bestsaves:highlight"));
+  open?.();
+  if (typeof document !== "undefined") {
+    requestAnimationFrame(() => document.getElementById(MY_CARDS_ANCHOR)?.scrollIntoView({ behavior: "smooth", block: "center" }));
+  }
+}
+
 /**
- * DEMO: trimite imediat notificarea concretă pentru o ofertă aleasă manual
- * (din panoul dev din Seiful meu) și evidențiază cardul afiliat. Logica de
+ * DEMO: trimite notificarea concretă pentru o ofertă aleasă manual și, la tap pe
+ * „Deschide cardul”, evidențiază cardul afiliat și derulează la el. Logica de
  * potrivire este reală; doar declanșarea este manuală, nu din GPS.
  */
 export async function sendOfferNotification(offer: LocationOffer, open?: () => void) {
   const { title, body } = notificationText(offer);
-  const go = () => {
-    sessionStorage.setItem(HIGHLIGHT_KEY, offer.cardId);
-    window.dispatchEvent(new Event("bestsaves:highlight"));
-    open?.();
-  };
+  const go = () => openHighlightedCard(offer.cardId, open);
   try {
     const { Capacitor } = await import("@capacitor/core");
     if (Capacitor.isNativePlatform()) {
@@ -37,8 +46,7 @@ export async function sendOfferNotification(offer: LocationOffer, open?: () => v
     const n = new Notification(title, { body });
     n.onclick = () => { window.focus(); go(); n.close(); };
   }
-  toast(title, { description: body, duration: 15000, action: { label: "Deschide cardul", onClick: go } });
-  go();
+  toast(title, { description: body, duration: 15000, closeButton: true, action: { label: "Deschide cardul", onClick: go } });
 }
 
 export function simulateCarrefour(open: () => void) {
