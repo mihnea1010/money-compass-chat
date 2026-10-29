@@ -11,6 +11,12 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
   },
   resolve: {
-    alias: { "@": path.resolve(__dirname, "./src") },
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      // The app pins zod v3, but TanStack plugins pull zod v4 into the tree.
+      // Pin the test runner to the app's v3 copy so `import { z } from "zod"`
+      // resolves consistently (v4's entry breaks the named `z` export here).
+      zod: path.resolve(__dirname, "./node_modules/zod"),
+    },
   },
 });
