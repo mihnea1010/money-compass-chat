@@ -20,11 +20,28 @@ export type LocationOffer = {
   status: "demo" | "unverified";
 };
 
-/** Toate ofertele disponibile din cardurile utilizatorului, ordonate descrescător după procent. */
+/**
+ * Doar locații FIZICE, în care poți „fi” (pentru simularea notificării în magazin).
+ * Excludem comercianți exclusiv online și programe/categorii abstracte
+ * (ex. Amazon.de, Cumpărături online, Click to Pay, Parteneri Star, Moneyback George,
+ * Direct Booking, agenții/parteneri/categorii „ING Bazar”), care nu sunt un loc fizic.
+ */
+export function isPhysicalLocation(merchant: string): boolean {
+  const m = merchant.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const online = [
+    "amazon", "online", "click to pay", "e-mag", "emag", "ing bazar", "bazar",
+    "moneyback", "george", "direct booking", "booking", "parteneri", "partener",
+    "agentii", "agentie", "turism", "puncte", "star", "mastercard", "visa",
+  ];
+  return !online.some((kw) => m.includes(kw));
+}
+
+/** Toate ofertele FIZICE disponibile din cardurile utilizatorului, ordonate descrescător după procent. */
 export function availableOffers(cards: MyCard[]): LocationOffer[] {
   const offers: LocationOffer[] = [];
   for (const card of cards) {
     for (const perk of card.perks) {
+      if (!isPhysicalLocation(perk.merchant)) continue;
       offers.push({
         merchant: perk.merchant,
         percent: perk.percent,

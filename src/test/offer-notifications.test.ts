@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { availableOffers, bestOfferForLocation, notificationText } from "@/lib/offer-notifications";
+import { availableOffers, bestOfferForLocation, isPhysicalLocation, notificationText } from "@/lib/offer-notifications";
 import type { MyCard } from "@/lib/my-cards";
 
 const cards: MyCard[] = [
@@ -7,10 +7,20 @@ const cards: MyCard[] = [
   { id: "raiffeisen-cashback", bank: "Raiffeisen", name: "Card cashback", perks: [{ merchant: "Carrefour", percent: 7, status: "demo" }, { merchant: "Auchan", percent: 5, status: "demo" }] },
 ];
 
+describe("isPhysicalLocation", () => {
+  it("keeps real physical stores", () => {
+    for (const m of ["Carrefour", "Auchan", "OMV", "Petrom", "Lidl", "Mega Image", "Kaufland"]) expect(isPhysicalLocation(m)).toBe(true);
+  });
+  it("filters out online merchants and abstract programs", () => {
+    for (const m of ["Amazon.de electronice", "Cumpărături online marți (Mastercard)", "Click to Pay marți (Mastercard)", "Parteneri Star", "Parteneri Star (puncte)", "Moneyback George", "Direct Booking", "Supermarketuri ING Bazar", "Agenții de turism Star"]) expect(isPhysicalLocation(m)).toBe(false);
+  });
+});
+
 describe("offer-notifications (matching logic)", () => {
-  it("lists every card perk as an available offer, sorted by percent", () => {
+  it("lists only physical-location perks as available offers, sorted by percent", () => {
     const offers = availableOffers(cards);
-    expect(offers).toHaveLength(4);
+    expect(offers).toHaveLength(3); // Carrefour x2, Auchan — "Parteneri Star" is filtered out
+    expect(offers.every((o) => isPhysicalLocation(o.merchant))).toBe(true);
     expect(offers[0]?.percent).toBe(7);
     expect(offers[0]?.cardBank).toBe("Raiffeisen");
   });
