@@ -17,3 +17,15 @@ Demo amounts are calculated only in the explicitly labelled illustrative scenari
 
 ## Scope preserved
 Existing page structure, styling, carousel, card management, statement upload and seven-second demo notification/highlight flow are unchanged. No new screen, provider or dependencies were introduced.
+
+## Changed files
+- Database: `drizzle/migrations/0001_bank_offer_provenance.sql`; generated `src/integrations/supabase/types.ts` and migration metadata.
+- Offer logic: `src/lib/offer-integrity.ts`, `src/lib/savings-offers.ts`, `src/hooks/use-savings.ts`.
+- Offer presentation: `src/components/SavingsExperience.tsx`, `src/components/SavingsGraphic.tsx`, `src/routes/index.tsx`.
+- Wallet and notifications: `src/lib/my-cards.ts`, `src/lib/card-input.ts`, `src/lib/simulate-store.ts`, `src/hooks/use-store-presence.ts`, `src/components/MyCards.tsx`, `src/components/CardDetailDialog.tsx`.
+- Legacy rewards and AI context: `src/lib/card-loops.ts`, `src/lib/optimizations.ts`, `src/components/CardLoopVisualizer.tsx`, `src/lib/ai/chat.server.ts`, `src/lib/ai/explain.server.ts`.
+- Tests: `src/test/offer-integrity.test.ts`, `src/test/savings-offers.test.ts`, `src/test/my-cards.test.ts`, `src/test/card-loops.test.ts`.
+- Documentation: `AGENTS.md`, `roadmap.md`, `OFFER_AUDIT.md`.
+
+## Validation
+All 109 tests passed. Browser checks covered demo offer list/detail, a statement-present personal total of zero from demo bank offers, wallet popover/detail labels, and seven-second simulated notification opening the highlighted BT card. No browser runtime errors were observed. The explanation endpoint returned HTTP 200 and described the selected cashback as a demonstration rather than a verified offer. Latest automatic compilation succeeded.
