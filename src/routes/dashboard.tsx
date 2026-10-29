@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Loader2, ArrowRight, FileUp, ShieldCheck } from "lucide-react";
+import { Loader2, ArrowRight, FileUp, ShieldCheck, Sparkles, Briefcase, Baby, Rocket } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ResponsiveContainer, Tooltip, Bar, BarChart, XAxis } from "recharts";
 import { RepartizareCheltuieli } from "@/components/RepartizareCheltuieli";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,13 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 const CULORI = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)", "var(--muted-foreground)"];
+
+/** Extrase demo pentru stiluri de viață diferite — arată că aplicația e universală. */
+const DEMO_PERSONAS = [
+  { id: "freelancer", file: "/extras_ING_demo_2026.csv", icon: Briefcase, title: "Freelancer creativ", desc: "Venituri din proiecte, abonamente tech, cumpărături online" },
+  { id: "familie", file: "/extras_demo_familie_2026.csv", icon: Baby, title: "Familie tânără", desc: "Două salarii, rată la casă, supermarket, grădiniță și farmacie" },
+  { id: "urban", file: "/extras_demo_urban_2026.csv", icon: Rocket, title: "Profesionist urban", desc: "Salariu mare, livrări, ride-sharing, fitness, călătorii și fashion" },
+] as const;
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -82,7 +90,7 @@ function Dashboard() {
     }
     await scan(await f.text());
   };
-  const demo = async () => scan(await (await fetch("/extras_ING_demo_2026.csv")).text());
+  const demo = async (file = "/extras_ING_demo_2026.csv") => scan(await (await fetch(file)).text());
 
   if (!loaded) return null;
   if (!tranz) return (
@@ -98,7 +106,26 @@ function Dashboard() {
           <input ref={fileRef} type="file" accept=".csv,text/csv,.pdf,application/pdf" className="hidden" disabled={scanning} onChange={(e) => onFile(e.target.files?.[0])} />
         </label>
         <div className="space-y-2 rounded-2xl border border-await/40 bg-card/60 p-4 text-left"><div className="text-sm font-medium">Sau conectează banca prin Open Banking</div><ConecteazaBanca disabled={scanning} onConfirm={demo} /></div>
-        <Button variant="outline" className="border-await/60 text-await-foreground hover:bg-await/15 hover:text-await-foreground" onClick={demo} disabled={scanning}>Folosește extrasul demo</Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="border-await/60 text-await-foreground hover:bg-await/15 hover:text-await-foreground" disabled={scanning}>
+              <Sparkles className="size-4" /> Folosește un extras demo <ArrowRight className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center" className="w-80">
+            <DropdownMenuLabel>Alege un stil de viață</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {DEMO_PERSONAS.map((p) => (
+              <DropdownMenuItem key={p.id} disabled={scanning} onSelect={() => { void demo(p.file); }} className="flex items-start gap-3 py-2.5">
+                <p.icon className="mt-0.5 size-5 shrink-0 text-primary" />
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium">{p.title}</span>
+                  <span className="block text-xs text-muted-foreground">{p.desc}</span>
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
         {err && <p className="text-sm text-destructive">{err}</p>}
       </div>
     </div>
