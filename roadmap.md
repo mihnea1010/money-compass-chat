@@ -1,6 +1,6 @@
 # Tasks
-- [ ] Audit bank data, migrations, wallet perks and verification claims; distinguish simulated and evidence-backed offers without redesign.
-- [ ] Test offer integrity and verify the offer/detail and wallet demo flows.
+- [x] Audit bank data, migrations, wallet perks and verification claims; distinguish simulated and evidence-backed offers without redesign.
+- [x] Test offer integrity and verify the offer/detail and wallet demo flows.
 - [x] Add and verify the validated new-card form, masked-CVV flip preview and safe metadata persistence.
 - [x] Rebuild profile with signed-out, name-only and complete account/demo states.
 - [x] Add account password change and confirmed self-deletion.
