@@ -1,3 +1,5 @@
+import { extractMerchant, normalizeDate, parseAmount } from "./statement-parse";
+
 export const CATEGORII = [
   "salariu", "freelancing", "dividende", "alte_venituri",
   "chirie_utilitati", "mancare", "abonamente_tech", "transport", "shopping", "altele",
@@ -19,19 +21,53 @@ export const loadStatement = (): Tranzactie[] | null => {
 export const saveStatement = (t: Tranzactie[]) => localStorage.setItem(KEY, JSON.stringify(t));
 export const clearStatement = () => localStorage.removeItem(KEY);
 
-/** Parse CSV local: Data, Descriere, Suma (alte coloane, ex. IBAN, sunt ignorate și nu pleacă din browser). */
+/**
+ * Parse CSV local, tolerant la formate de la mai multe bănci (ING, Revolut, BCR...).
+ * Recunoaște coloana de sumă unică (Suma/Amount) SAU coloane separate Debit/Credit.
+ * Alte coloane (IBAN etc.) sunt ignorate și nu părăsesc browserul.
+ */
 export function parseCSV(text: string) {
   const lines = text.trim().split(/\r?\n/);
   const split = (l: string) => l.match(/("([^"]|"")*"|[^,]*)(,|$)/g)!.map((c) => c.replace(/,$/, "").replace(/^"|"$/g, "").replace(/""/g, '"'));
-  const head = split(lines[0] ?? "").map((h) => h.toLowerCase());
-  const iD = head.findIndex((h) => h.includes("data"));
-  const iT = head.findIndex((h) => h.includes("descr") || h.includes("detalii"));
-  const iS = head.findIndex((h) => h.includes("suma") || h.includes("amount"));
-  if (iD < 0 || iT < 0 || iS < 0) throw new Error("Coloane lipsă: Data, Descriere, Suma");
+  const head = split(lines[0] ?? "").map((h) => h.toLowerCase().trim());
+
+  // Data: preferă data tranzacției/decontării în locul datei de emitere a extrasului.
+  const dateCols = head.map((h, i) => ({ h, i })).filter(({ h }) => /\bdata\b|date|dată/.test(h));
+  const prefDate = dateCols.find(({ h }) => /(tranzac|complet|operation|value|valut|decont)/.test(h) && !/issu|emit/.test(h));
+  const iD = (prefDate ?? dateCols.find(({ h }) => !/issu|emit/.test(h)) ?? dateCols[0])?.i ?? -1;
+
+  // Descriere / detalii tranzacție.
+  const iT = head.findIndex((h) => /descr|detali|detail|explica|tranz.*detali|detalii.*tranz/.test(h));
+
+  // Debit/Credit separate (bani ieșiți / intrați). Exclude coloanele de total.
+  const iDebit = head.findIndex((h) => /debit/.test(h) && !/total/.test(h) && !/linii|limit/.test(h));
+  const iCredit = head.findIndex((h) => /credit/.test(h) && !/total/.test(h) && !/linii|limit/.test(h));
+  // Sumă unică: o coloană de valoare care NU este debit/credit/total.
+  const iS = head.findIndex((h, i) => i !== iDebit && i !== iCredit
+    && (/^sum[ăa]$|\bsum[ăa]\b|amount|valoare|value\b|sum[ăa] plătit/.test(h)) && !/total|debit|credit/.test(h));
+
+  // Dacă avem coloane debit+credit, le preferăm; altfel folosim coloana unică.
+  const hasSplit = iDebit >= 0 && iCredit >= 0;
+  const hasSingle = !hasSplit && iS >= 0;
+  if (iD < 0 || iT < 0 || (!hasSingle && !hasSplit)) {
+    throw new Error("Coloane lipsă: am nevoie de o coloană de dată, una de descriere și o sumă (Suma/Amount sau Debit+Credit).");
+  }
+
   return lines.slice(1).filter(Boolean).map((l) => {
     const c = split(l);
-    return { data: c[iD] ?? "", descriere: c[iT] ?? "", suma: Number((c[iS] ?? "0").replace(",", ".")) };
-  }).filter((r) => r.data && Number.isFinite(r.suma));
+    const data = normalizeDate(c[iD] ?? "");
+    const descriere = extractMerchant(c[iT] ?? "");
+    let suma: number;
+    if (hasSingle) {
+      suma = parseAmount(c[iS] ?? "");
+    } else {
+      const debit = parseAmount(c[iDebit] ?? "") || 0;
+      const credit = parseAmount(c[iCredit] ?? "") || 0;
+      // Debit = bani ieșiți (negativ), Credit = bani intrați (pozitiv).
+      suma = credit - Math.abs(debit);
+    }
+    return { data, descriere, suma };
+  }).filter((r) => r.data && Number.isFinite(r.suma) && r.suma !== 0 && r.descriere);
 }
 
 const VENIT: Categorie[] = ["salariu", "freelancing", "dividende", "alte_venituri"];

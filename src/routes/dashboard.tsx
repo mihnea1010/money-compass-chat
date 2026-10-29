@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { formatRON } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 import { clearStatement, loadStatement, parseCSV, saveStatement, statistici, type Categorie, type Tranzactie } from "@/lib/statement";
+import { categorizeLocal } from "@/lib/statement-parse";
 import { Abonamente } from "@/components/Abonamente";
 import { SoldConturi } from "@/components/SoldConturi";
 import { ConecteazaBanca } from "@/components/ConecteazaBanca";
@@ -47,13 +48,23 @@ function Dashboard() {
     setErr(null); setScanning(true);
     try {
       const rows = parseCSV(text);
+      if (!rows.length) throw new Error("Nu am găsit tranzacții valide în fișier. Verifică formatul (dată, descriere, sumă sau debit/credit).");
       // Doar descriere + sumă pleacă spre AI; IBAN-ul și alte coloane rămân local.
-      const res = await fetch("/api/scan", { method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ items: rows.map((r, i) => ({ i, d: r.descriere, s: r.suma })) }) });
-      if (!res.ok) throw new Error(await res.text());
-      const { rezultate } = (await res.json()) as { rezultate: { i: number; c: Categorie }[] };
-      const map = new Map(rezultate.map((r) => [r.i, r.c]));
-      const t = rows.map((r, i) => ({ ...r, categorie: map.get(i) ?? (r.suma > 0 ? "alte_venituri" : "altele") }) as Tranzactie);
+      let map = new Map<number, Categorie>();
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 20000);
+        const res = await fetch("/api/scan", { method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ items: rows.map((r, i) => ({ i, d: r.descriere, s: r.suma })) }), signal: ctrl.signal });
+        clearTimeout(timer);
+        if (!res.ok) throw new Error(await res.text());
+        const { rezultate } = (await res.json()) as { rezultate: { i: number; c: Categorie }[] };
+        map = new Map(rezultate.map((r) => [r.i, r.c]));
+      } catch {
+        // AI indisponibil/timeout: clasificăm local, ca extrasul să se încarce oricum.
+        map = new Map(rows.map((r, i) => [i, categorizeLocal(r.descriere, r.suma)]));
+      }
+      const t = rows.map((r, i) => ({ ...r, categorie: map.get(i) ?? categorizeLocal(r.descriere, r.suma) }) as Tranzactie);
       saveStatement(t); setTranz(t);
     } catch (e) { setErr(e instanceof Error ? e.message : "Eroare la scanare"); }
     finally { setScanning(false); }
@@ -78,12 +89,12 @@ function Dashboard() {
     <div className="h-full overflow-y-auto bg-gradient-to-b from-await/18 via-await/6 to-transparent">
       <div className="mx-auto max-w-2xl space-y-6 px-4 py-16 text-center md:px-8">
         <h1 className="font-display text-2xl font-semibold tracking-tight text-await-foreground md:text-3xl">Seif financiar</h1>
-        <p className="text-sm text-muted-foreground">Încarcă un extras bancar CSV. Îl citim în browser, iar un AI mic clasifică doar descrierile și sumele.</p>
+        <p className="text-sm text-muted-foreground">Încarcă un extras bancar CSV sau PDF (ING, Revolut, BCR și altele). Îl citim în browser, iar un AI mic clasifică doar descrierile și sumele.</p>
         <label className="await-panel flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-await-ink/25 p-10 text-sm transition-transform hover:-translate-y-0.5"
           onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); onFile(e.dataTransfer.files[0]); }}>
           {scanning ? <Loader2 className="size-6 animate-spin" /> : <FileUp className="size-6" />}
           <div className="font-semibold">{scanning ? "Scanez tranzacțiile…" : "Încarcă extras bancar (CSV sau PDF)"}</div>
-          <div className="text-await-ink/75">CSV: Data, Descriere, Suma · PDF: ING sau Revolut, citit local</div>
+          <div className="text-await-ink/75">CSV: Data, Descriere, Suma (sau Debit/Credit) · PDF: ING, Revolut, BCR · citit local</div>
           <input ref={fileRef} type="file" accept=".csv,text/csv,.pdf,application/pdf" className="hidden" disabled={scanning} onChange={(e) => onFile(e.target.files?.[0])} />
         </label>
         <div className="space-y-2 rounded-2xl border border-await/40 bg-card/60 p-4 text-left"><div className="text-sm font-medium">Sau conectează banca prin Open Banking</div><ConecteazaBanca disabled={scanning} onConfirm={demo} /></div>
