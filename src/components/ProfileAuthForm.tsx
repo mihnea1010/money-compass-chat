@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import { authErrorMessage, isObfuscatedDuplicate } from "@/lib/auth-errors";
 
 export function ProfileAuthForm({ initialMode = "in" }: { initialMode?: "in" | "up" }) {
   const [mode, setMode] = useState(initialMode);
@@ -21,9 +22,14 @@ export function ProfileAuthForm({ initialMode = "in" }: { initialMode?: "in" | "
       } else {
         const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: `${window.location.origin}/onboarding` } });
         if (error) throw error;
+        if (isObfuscatedDuplicate(data.user)) { setError(authErrorMessage("up", { code: "user_already_exists" })); return; }
         if (!data.session) { setConfirmation(true); setPassword(""); }
       }
-    } catch { setError(mode === "in" ? "Nu am putut intra în cont. Verifică emailul și parola." : "Contul nu a putut fi creat. Verifică datele și încearcă din nou."); }
+    } catch (err) {
+      const e = err as { code?: string; status?: number; message?: string };
+      if (import.meta.env.DEV) console.warn("[auth]", mode, e?.status, e?.code);
+      setError(authErrorMessage(mode, e));
+    }
     finally { setBusy(false); }
   }
   async function google() {
@@ -40,7 +46,7 @@ export function ProfileAuthForm({ initialMode = "in" }: { initialMode?: "in" | "
     <div className="grid grid-cols-2 border-b" role="tablist" aria-label="Autentificare">{(["in", "up"] as const).map((m) => <Button key={m} variant="ghost" role="tab" aria-selected={mode === m} className={`rounded-none border-b-2 ${mode === m ? "border-success-foreground text-success-foreground" : "border-transparent text-muted-foreground"}`} onClick={() => { setMode(m); setError(""); setConfirmation(false); }}>{m === "in" ? "Intră" : "Creează cont"}</Button>)}</div>
     {confirmation ? <div role="status" className="space-y-3 rounded-lg bg-success-soft p-4 text-sm"><h2 className="font-medium">Verifică emailul</h2><p>Confirmă contul din mesajul primit, apoi intră în cont.</p><Button variant="outline" onClick={() => { setMode("in"); setConfirmation(false); }}>Înapoi la autentificare</Button></div> : <form onSubmit={submit} className="space-y-4">
       <label className="block space-y-2 text-sm">Email<Input type="email" autoComplete="email" required placeholder="email@exemplu.ro" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-      <label className="block space-y-2 text-sm">Parolă<Input type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} required minLength={6} placeholder="Cel puțin 6 caractere" value={password} onChange={(e) => setPassword(e.target.value)} /></label>
+      <label className="block space-y-2 text-sm">Parolă<Input type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} required minLength={6} placeholder={mode === "up" ? "Parolă unică, greu de ghicit" : "Parola ta"} value={password} onChange={(e) => setPassword(e.target.value)} /></label>
       <Button variant="savings" type="submit" disabled={busy} className="w-full">{busy ? <LoaderCircle className="motion-safe:animate-spin" /> : <ArrowRight />}{mode === "in" ? "Intră în cont" : "Creează cont"}</Button>
     </form>}
     {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
